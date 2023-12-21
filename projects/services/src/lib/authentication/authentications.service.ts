@@ -6,7 +6,7 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class AuthenticationService {
-  private backendUrl = 'http://localhost:3000/v1/vidmo/';
+  private backendUrl = 'http://localhost:3000/v1/vidmo';
 
   constructor(private http: HttpClient) {}
 

@@ -12,6 +12,7 @@ import { MatDialogModule } from '@angular/material/dialog';
 import { AppComponent } from './app/app.component';
 import { AUTH_ROUTE } from './app/authentication/route';
 import { COMP_ROUTE } from './app/components';
+import { ToastrModule } from 'ngx-toastr'; // Import ngx-toastr
 
 // platformBrowserDynamic().bootstrapModule(AppModule)
 //   .catch(err => console.error(err));
@@ -54,7 +55,16 @@ bootstrapApplication(AppComponent, {
       HttpClientModule,
       BrowserAnimationsModule,
       MatSnackBarModule,
-      MatDialogModule
+      MatDialogModule,
+      ToastrModule,
+      ToastrModule.forRoot({
+        timeOut: 3000,
+        positionClass: 'toast-top-right',
+        preventDuplicates: true,
+        progressBar: true,
+
+        toastClass: 'ngx-toastr custom-toast',
+      })
     ),
     // {
     //   provide: HTTP_INTERCEPTORS,

@@ -8,12 +8,13 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 
 export interface LoginRequestData {
   rememberMe: boolean;
-  identifier: string;
+  email: string;
   password: string;
   authcode?: any;
 }
@@ -65,17 +66,13 @@ export interface LoginRequestData {
             <input
               matInput
               placeholder="dev@vinedo"
-              formControlName="identifier"
+              formControlName="email"
               required
             />
-            <mat-error
-              *ngIf="loginForm.controls['identifier'].hasError('required')"
-            >
+            <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
               Email is <strong>required</strong>
             </mat-error>
-            <mat-error
-              *ngIf="loginForm.controls['identifier'].hasError('email')"
-            >
+            <mat-error *ngIf="loginForm.controls['email'].hasError('email')">
               Email is <strong>not valid</strong>
             </mat-error>
           </mat-form-field>
@@ -186,7 +183,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private router: Router, // private authService: AuthService,
-    private authenService: AuthenticationService
+    private authenService: AuthenticationService,
+    private toastr: ToastrService
   ) {}
 
   ngOnInit() {
@@ -195,7 +193,7 @@ export class LoginComponent implements OnInit {
 
   initForm() {
     this.loginForm = this.formBuilder.group({
-      identifier: [null, [Validators.required, Validators.email]],
+      email: [null, [Validators.required, Validators.email]],
       password: [null, Validators.required],
     });
   }
@@ -206,9 +204,24 @@ export class LoginComponent implements OnInit {
 
     const data: LoginRequestData = this.loginForm.value;
 
-    this.authenService.login(data).subscribe((res) => {
-      console.log(res, 'response');
-    });
+    this.authenService.login(data).subscribe(
+      (res: any) => {
+        console.log(res, 'response');
+
+        if (res.status === 200) {
+          this.isAsyncCall = false;
+          // Show toaster notification for successful login
+          this.toastr.success('User logged in successfully!', 'Success');
+        }
+      },
+      (error) => {
+        // Handle error scenarios if needed
+        console.error(error);
+        this.isAsyncCall = false;
+        // Show an error toaster notification if login fails
+        this.toastr.error('Login failed. Please try again.', 'Error');
+      }
+    );
 
     // this.authService.login(data).subscribe({
     //   next: (res) => {
@@ -221,11 +234,12 @@ export class LoginComponent implements OnInit {
     //       this.isCorrectInfo = false;
     //       this.isAsyncCall = false;
     //       this.errormessage =
-    //         err.error.error.message || 'Invalid identifier Or Password!';
+    //         err.error.error.message || 'Invalid email Or Password!';
     //     }
     //   },
     // });
   }
+
   Signup() {
     this.router.navigateByUrl('/sign-up');
   }
