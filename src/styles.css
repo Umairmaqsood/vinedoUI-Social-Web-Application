@@ -1,1 +1,157 @@
-/* You can add global styles to this file, and also import other style files */
+
+html,
+body {
+  height: 100%;
+}
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import url("https://fonts.googleapis.com/css2?family=K2D&display=swap");
+
+body,
+app-root {
+  background-color: #1d1d1d;
+  color: white;
+  font-family: "K2D", sans-serif;
+}
+
+.mat-tab-color {
+  .mat-mdc-tab:not(.mat-mdc-tab-disabled)
+    .mdc-tab-indicator__content--underline,
+  .mat-mdc-tab-link:not(.mat-mdc-tab-disabled)
+    .mdc-tab-indicator__content--underline {
+    border-color: var(
+      --mdc-tab-indicator-active-indicator-color,
+      #da291c
+    ) !important;
+  }
+}
+
+.mat-tab-ripple {
+  .mdc-tab__ripple::before,
+  .mat-mdc-tab .mat-ripple-element,
+  .mat-mdc-tab-header-pagination .mat-ripple-element,
+  .mat-mdc-tab-link .mat-ripple-element {
+    background-color: #da291c !important;
+  }
+}
+
+.mat-mdc-text-field-wrapper {
+  width: 100%;
+  border: 1px solid white !important;
+}
+
+.mat-mdc-form-field:not(.mat-form-field-disabled)
+  .mat-mdc-floating-label.mdc-floating-label {
+  cursor: inherit;
+  color: white !important;
+}
+
+.mdc-text-field--outlined.mdc-text-field--invalid:not(.mdc-text-field--disabled)
+  .mdc-text-field__input {
+  color: white !important;
+  caret-color: var(--mdc-outlined-text-field-error-caret-color);
+}
+.mat-mdc-form-field:not(.mat-form-field-no-animations) .mdc-text-field__input {
+  transition: opacity 150ms 0ms cubic-bezier(0.4, 0, 0.2, 1);
+  color: white !important;
+}
+
+.mat-mdc-icon-button.mat-mdc-button-base {
+  color: white !important;
+  --mdc-icon-button-state-layer-size: 48px;
+  width: var(--mdc-icon-button-state-layer-size);
+  height: var(--mdc-icon-button-state-layer-size);
+}
+
+.m-b-10 {
+  margin-bottom: 10px;
+}
+.m-t-5 {
+  margin-top: 5px;
+}
+.m-t-10 {
+  margin-top: 10px;
+}
+.m-t-20 {
+  margin-top: 20px;
+}
+.m-top-30 {
+  margin-top: 30px;
+}
+.gap-40 {
+  gap: 40px;
+}
+
+.mat-raised-button {
+  background-color: #2aaa8a !important;
+  color: white !important;
+}
+
+.flex {
+  display: flex;
+}
+
+.gap-10 {
+  gap: 10px;
+}
+.gap-20 {
+  gap: 20px;
+}
+.flex-end {
+  display: flex;
+  justify-content: flex-end;
+}
+.cursor {
+  cursor: pointer;
+}
+
+/* app.component.scss */
+.container {
+  display: flex;
+  flex-direction: column;
+  /* height: 100vh; */
+}
+
+mat-toolbar {
+  flex: 0 0 auto;
+  justify-content: space-between;
+}
+
+.mat-toolbar-row,
+.mat-toolbar-single-row {
+  display: flex;
+  box-sizing: border-box;
+  padding: 0 16px;
+  width: 100%;
+  flex-direction: row;
+  align-items: center;
+  white-space: nowrap;
+  color: black;
+  height: var(--mat-toolbar-standard-height);
+  background-color: #2d3436;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  flex-grow: 1;
+  margin-top: 20px;
+}
+
+.search-field {
+  width: 100%;
+  max-width: 400px;
+  /* Adjust as needed */
+  height: 70px;
+}
+
+/* Adjust responsiveness based on screen size */
+@media (max-width: 599px) {
+  .search-field {
+    max-width: 250px;
+  }
+    
+}

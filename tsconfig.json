@@ -9,6 +9,17 @@
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
     "noImplicitReturns": true,
+    "paths": {
+      "components": [
+        "dist/components"
+      ],
+      "material": [
+        "dist/material"
+      ],
+      "services": [
+        "dist/services"
+      ]
+    },
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
