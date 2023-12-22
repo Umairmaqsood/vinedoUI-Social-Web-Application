@@ -280,7 +280,7 @@ export class ForgotPasswordComponent {
         const email: string = emailControl.value;
         this.isAsyncCall = true;
         this.authensService.forgotPassword(email).subscribe((res: any) => {
-          if (res) {
+          if (res?.isConfirmed) {
             this.resetPasswordStep = 2;
             this.isAsyncCall = false;
           }
@@ -311,7 +311,7 @@ export class ForgotPasswordComponent {
         const otp: string = otpControl.value;
         this.isAsyncCall = true;
         this.authensService.otpValidation(email, otp).subscribe((res: any) => {
-          if (res) {
+          if (res?.isConfirmed) {
             this.resetPasswordStep = 3;
             this.isAsyncCall = false;
           }
@@ -340,7 +340,7 @@ export class ForgotPasswordComponent {
           this.authensService
             .confirmPassword(email, password, confirmPassword)
             .subscribe((res: any) => {
-              if (res) {
+              if (res?.isConfirmed) {
                 this.toastr.success('Password updated successfully');
                 this.router.navigateByUrl('');
                 this.isAsyncCall = false;
