@@ -209,9 +209,9 @@ export class LoginComponent implements OnInit {
         console.log(res, 'response');
 
         if (res.status === 200) {
-          this.isAsyncCall = false;
-          // Show toaster notification for successful login
+          this.router.navigate(['']);
           this.toastr.success('User logged in successfully!', 'Success');
+          this.isAsyncCall = false;
         }
       },
       (error) => {
