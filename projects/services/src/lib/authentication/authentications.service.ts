@@ -22,4 +22,23 @@ export class AuthenticationService {
   signup(data: any) {
     return this.http.post<any[]>(this.backendUrl + '/auth/register', data);
   }
+
+  forgotPassword(email: any) {
+    return this.http.post<any[]>(this.backendUrl + `/auth/forgetPassword`, {
+      email,
+    });
+  }
+  otpValidation(email: string, otp: any) {
+    return this.http.post<any[]>(`${this.backendUrl}/auth/verifyOTP`, {
+      email,
+      otp,
+    });
+  }
+  confirmPassword(email: string, password: string, confirmPassword: string) {
+    return this.http.post<any[]>(`${this.backendUrl}/auth/updatePassword`, {
+      email,
+      password,
+      confirmPassword,
+    });
+  }
 }

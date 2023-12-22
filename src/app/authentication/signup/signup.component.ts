@@ -10,7 +10,9 @@ import {
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/lib/material.module';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 // import {
 //   AuthSapiensService,
 //   BSUserTypeService,
@@ -277,11 +279,14 @@ export class SignUpComponent {
   userTypes: any[] = [];
   userTypeId: any = '';
   signupForm!: FormGroup;
+  isAsyncCall = false;
 
   constructor(
     private formBuilder: FormBuilder,
     private dialog: MatDialog,
-    private router: Router // private authService: AuthSapiensService, // private _bSUserTypeService: BSUserTypeService, // private notificationService: NotificationService
+    private router: Router,
+    private toastr: ToastrService,
+    private authensService: AuthenticationService // private _bSUserTypeService: BSUserTypeService, // private notificationService: NotificationService
   ) {
     let MOBILE_PATTERN = /^[0-9]{10,10}$/;
     this.signupForm = this.formBuilder.group(
@@ -337,50 +342,36 @@ export class SignUpComponent {
       console.log('Invalid Email');
     }
 
-    //this.submitted = true;
     const userObj: any = {
-      // siteId: this.signupForm.value.siteId,
       email: this.signupForm.value.email,
       password: this.signupForm.value.password,
       name: this.signupForm.value.name,
-      // lastName: this.signupForm.value.lastName,
       phoneNumber: this.signupForm.value.phoneNumber,
       location: this.signupForm.value.location,
       dateOfBirth: this.signupForm.value.dateOfBirth,
-
-      // userTypeId: this.userTypeId,
-      //isTfaMandatory: this.signupForm.value.isTfaMandatory
     };
-    // this.authService.frontendSignup(userObj).subscribe(
-    //   (res: any) => {
-    //     if (res.success) {
-    //       this.dialog.open(CommonNotificationDialogComponent, {
-    //         data: { message: res.message || 'User created successfully' },
-    //         width: '600px',
-    //       });
-    //       this.login();
-    //     } else {
-    //       this.dialog.open(CommonNotificationDialogComponent, {
-    //         data: {
-    //           message: res.message || 'Something went wrong.Please try again',
-    //           errorMessage: true,
-    //         },
-    //         width: '600px',
-    //       });
-    //     }
-    //   },
-    //   (error) => {
-    //     this.dialog.open(CommonNotificationDialogComponent, {
-    //       data: {
-    //         message:
-    //           error.error?.error?.message ||
-    //           'Something went wrong.Please try again',
-    //         errorMessage: true,
-    //       },
-    //       width: '600px',
-    //     });
-    //   }
-    // );
+
+    this.isAsyncCall = true;
+    this.authensService.signup(userObj).subscribe(
+      (res: any) => {
+        if (res.status === 200) {
+          this.router.navigate(['']);
+          this.toastr.success('Account Created successfully!', 'Success');
+        }
+      },
+      (error) => {
+        if (error.status === 409) {
+          this.toastr.error('User is already registered.', 'Error');
+        } else {
+          console.error(error);
+          this.toastr.error(
+            'Error occurred during signup. Please try again.',
+            'Error'
+          );
+        }
+        this.isAsyncCall = false;
+      }
+    );
   }
   get form() {
     return this.signupForm.controls;
