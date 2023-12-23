@@ -17,16 +17,17 @@ export class AuthenticationService {
   constructor(private http: HttpClient) {}
 
   login(data: LoginRequestData): Observable<void> {
-    return this.http.post<any>(this.backendUrl + '/auth/login', data).pipe(
-      map((response) => {
-        if (response && response.result) {
-          AuthenticationService.authToken = response.result;
-          AuthenticationService.authClaims = this.decodeTokenClaims(
-            response.result
-          );
-        }
-      })
-    );
+    return this.http.post<any>(this.backendUrl + '/auth/login', data);
+    // .pipe(
+    //   map((response) => {
+    //     if (response && response.result) {
+    //       AuthenticationService.authToken = response.result;
+    //       AuthenticationService.authClaims = this.decodeTokenClaims(
+    //         response.result
+    //       );
+    //     }
+    //   })
+    // );
   }
 
   private decodeTokenClaims(token: string): any {
@@ -57,6 +58,10 @@ export class AuthenticationService {
     AuthenticationService.authToken = null;
     AuthenticationService.authClaims = null;
     localStorage.removeItem('userToken');
+  }
+
+  signup(data: any) {
+    return this.http.post<any>(this.backendUrl + '/auth/register', data);
   }
 
   forgotPassword(email: any) {

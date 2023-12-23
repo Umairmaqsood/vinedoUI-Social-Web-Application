@@ -355,7 +355,7 @@ export class SignUpComponent {
     this.authensService.signup(userObj).subscribe(
       (res: any) => {
         if (res.status === 200) {
-          this.router.navigate(['']);
+          this.router.navigateByUrl('');
           this.toastr.success('Account Created successfully!', 'Success');
         }
       },

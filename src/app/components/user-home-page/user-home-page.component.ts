@@ -78,7 +78,7 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
             <label class="m-t-5">{{ joined }}</label>
           </div>
         </div>
-        <div style="width:40%">
+        <div class="width-read-more">
           <p>
             {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
             <button
@@ -121,17 +121,309 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Pictures</span>
             </ng-template>
-            Content 2
+
+            <div class="image-grid">
+              <div class="image-container" *ngFor="let image of images">
+                <img [src]="image.url" (click)="expandImage(image)" />
+                <div
+                  class="expanded-view"
+                  [ngClass]="{ active: expandedImage === image }"
+                >
+                  <div class="image-details">
+                    <img [src]="image.url" class="expanded-image" />
+                    <div class="details">
+                      <div class="close-button" (click)="closeExpandedView()">
+                        <i class="material-icons">close</i>
+                      </div>
+                      <p class="description">
+                        Description: {{ image.description }}
+                      </p>
+                      <div class="flex-container">
+                        <!-- Your flex container with items -->
+                        <div class="flex-item">
+                          <div class="likes-section">
+                            <i class="material-icons">favorite</i>
+                            <p class="likes">Likes: {{ image.likes }}</p>
+                          </div>
+
+                          <!-- Your flex container with items -->
+
+                          <div class="likes-section">
+                            <i
+                              class="material-icons"
+                              (click)="toggleComments()"
+                            >
+                              {{ showComments ? 'close' : 'comment' }}
+                            </i>
+                            <p
+                              class="comments-heading"
+                              (click)="toggleComments()"
+                            >
+                              Comments:
+                              {{ image.comments.length }}
+                            </p>
+                          </div>
+                          <div class="comments-section" *ngIf="showComments">
+                            <div
+                              *ngFor="let comment of image.comments"
+                              class="comment"
+                            >
+                              <div class="comment-details" style="display:flex">
+                                <i class="material-icons">account_circle</i>
+                                <span class="username"
+                                  >{{ comment.author }}:</span
+                                >
+                                <span class="user-comment">{{
+                                  comment.text
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </mat-tab>
         </mat-tab-group>
       </div>
     </div>
   `,
   styles: [
-    '.home-container{padding:0px 100px !important} .custom-tab-label { color: white !important; } .mat-button { background-color: #2aaa8a !important; } .mat-icon-label { margin-top: 4px; } .profile-picture { width: 150px; height: 150px; overflow: hidden; border-radius: 50%; } .profile-picture img{width: 100%;height: 100%;object-fit: cover;} .profile-info{margin-top:-70px} .profile-cover{margin:0px !important; padding:0px !important} .socialIcon{cursor:pointer; width:70px} cursor:{cursor:pointer} .subscribe-btn{padding:10px; display:block; margin:0px auto; margin-top:40px}',
+    `
+      .home-container {
+        padding: 0px 100px !important;
+      }
+      @media (max-width: 767px) {
+        .home-container {
+          padding: 0px 10px !important;
+        }
+      }
+      .width-read-more {
+        width: 40%;
+      }
+      @media (max-width: 767px) {
+        .width-read-more {
+          width: 90%;
+        }
+      }
+      .custom-tab-label {
+        color: white !important;
+      }
+      .mat-button {
+        background-color: #2aaa8a !important;
+      }
+      .mat-icon-label {
+        margin-top: 4px;
+      }
+      .profile-picture {
+        width: 150px;
+        height: 150px;
+        overflow: hidden;
+        border-radius: 50%;
+      }
+      .profile-picture img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+      .profile-info {
+        margin-top: -70px;
+      }
+      .profile-cover {
+        margin: 0px !important;
+        padding: 0px !important;
+      }
+      .socialIcon {
+        cursor: pointer;
+        width: 70px;
+      }
+      cursor: {
+        cursor: pointer;
+      }
+      .subscribe-btn {
+        padding: 10px;
+        display: block;
+        margin: 0px auto;
+        margin-top: 40px;
+      }
+      .image-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .image-container {
+        flex: 1 1 calc(25% - 10px);
+        position: relative;
+        cursor: pointer;
+      }
+
+      .image-container img {
+        width: 100%;
+        height: 60%;
+        display: block;
+      }
+
+      .expanded-view {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        overflow: auto;
+      }
+
+      .expanded-view.active {
+        display: flex;
+      }
+
+      .image-details {
+        background-color: black;
+        width: 70%;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px;
+        box-sizing: border-box;
+        position: relative;
+        border: 1px solid #f1f1f1;
+      }
+
+      .expanded-image {
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: calc(70vh - 40px); /* Account for padding: 20px */
+        object-fit: cover;
+        margin-right: 20px;
+      }
+
+      .details {
+        width: 30%;
+        padding: 10px 0;
+        box-sizing: border-box;
+        overflow-y: auto;
+      }
+
+      .comments-section {
+        margin-top: 10px;
+      }
+
+      .comments-heading {
+        font-weight: bold;
+      }
+
+      .comment {
+        margin-bottom: 10px;
+      }
+
+      .comment p {
+        margin: 5px 0;
+      }
+
+      .material-icons {
+        font-size: 24px;
+        cursor: pointer;
+        display: flex;
+        justify-content: flex-end;
+      }
+      .flex-container {
+        display: flex;
+        /* Additional flexbox settings if required */
+      }
+
+      .flex-item {
+        /* Adjust width, padding, margin, etc., as needed */
+      }
+
+      .likes-section,
+      .comments-section {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px; /* Optional margin between sections */
+      }
+
+      .likes-section .material-icons,
+      .comments-section .material-icons {
+        font-size: 24px;
+        margin-right: 5px; /* Optional margin between icon and text */
+      }
+    `,
   ],
 })
 export class UserHomePageComponent {
+  images: any[] = []; // Placeholder for images from API
+  expandedImage: any = null; // Track expanded image
+
+  fetchImages() {
+    // Simulate API call or add your API service call here
+    // For demonstration, using dummy images
+    this.images = [
+      {
+        url: 'assets/pictures/pic1.jpg',
+        description: 'Image 1',
+        likes: 10,
+        comments: [
+          { text: 'Nice!', author: 'User1' },
+          { text: 'Great picture!', author: 'User2' },
+          // Add more comments as needed
+        ],
+      },
+      {
+        url: 'assets/pictures/pic1.jpg',
+        description: 'Image 1',
+        likes: 10,
+        comments: [
+          { text: 'Nice!', author: 'User1' },
+          { text: 'Great picture!', author: 'User2' },
+          // Add more comments as needed
+        ],
+      },
+      {
+        url: 'https://via.placeholder.com/150',
+        description: 'Image 1',
+        likes: 10,
+        comments: [
+          { text: 'Nice!', author: 'User1' },
+          { text: 'Great picture!', author: 'User2' },
+          // Add more comments as needed
+        ],
+      },
+      {
+        url: 'https://via.placeholder.com/150',
+        description: 'Image 1',
+        likes: 10,
+        comments: [
+          { text: 'Nice!', author: 'User1' },
+          { text: 'Great picture!', author: 'User2' },
+          // Add more comments as needed
+        ],
+      },
+    ];
+  }
+
+  expandImage(image: any) {
+    this.expandedImage = this.expandedImage === image ? null : image;
+  }
+
+  closeExpandedView() {
+    this.expandedImage = null;
+  }
+  showComments = false; // Flag to track comments visibility
+
+  toggleComments(): void {
+    this.showComments = !this.showComments; // Toggle comments visibility
+  }
   name = 'Sussan Albert';
   location = 'USA';
   joined = 'joined september 2023';
@@ -157,6 +449,7 @@ export class UserHomePageComponent {
     if (this.bio.length > 50) {
       this.showReadMore = true;
     }
+    this.fetchImages();
   }
 
   paypalDialog() {

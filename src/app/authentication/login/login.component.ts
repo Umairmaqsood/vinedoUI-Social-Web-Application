@@ -209,7 +209,7 @@ export class LoginComponent implements OnInit {
         console.log(res, 'response');
 
         if (res.status === 200) {
-          this.router.navigate(['./user-home-page']);
+          this.router.navigate(['/user-home-page']);
           this.toastr.success('User logged in successfully!', 'Success');
           this.isAsyncCall = false;
         }
