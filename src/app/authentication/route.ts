@@ -21,12 +21,11 @@ export const AUTH_ROUTE: Route[] = [
     path: 'forgot-password',
     component: ForgotPasswordComponent,
   },
+
+  { path: 'home-page/:userId', component: HomePageComponent },
+
   {
-    path: 'home-page',
-    component: HomePageComponent,
-  },
-  {
-    path: 'user-home-page',
+    path: 'user-home-page/:userId',
     component: UserHomePageComponent,
   },
   {

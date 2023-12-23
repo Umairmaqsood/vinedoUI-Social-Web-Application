@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
 import { MaterialModule } from 'projects/material/src/public-api';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 
 @Component({
   selector: 'app-search-bar',
@@ -38,7 +39,9 @@ import { MaterialModule } from 'projects/material/src/public-api';
   styles: [],
 })
 export class SearchBarComponent {
+  constructor(private authensService: AuthenticationService) {}
   logout() {
-    console.log('Logged out'); // Replace with your logout logic
+    console.log('Logged out');
+    this.authensService.logout();
   }
 }

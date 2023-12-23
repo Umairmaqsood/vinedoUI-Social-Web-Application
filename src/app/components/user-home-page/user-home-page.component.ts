@@ -5,6 +5,7 @@ import { PaypalDialogComponent } from '../paypal-dialog/paypal-dialog.component'
 import { CommonModule } from '@angular/common';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 
 @Component({
   selector: 'app-user-home-page',
@@ -109,6 +110,51 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Videos</span>
             </ng-template>
+            <div class="video-grid">
+              <div class="video-container" *ngFor="let video of videos">
+                <video [src]="video.url" (click)="expandVideo(video)"></video>
+                <div
+                  class="expanded-view"
+                  [ngClass]="{ active: expandedVideo === video }"
+                >
+                  <div class="video-details">
+                    <video
+                      [src]="video.url"
+                      class="expanded-video"
+                      controls
+                      autoplay
+                    ></video>
+                    <div class="details">
+                      <div class="close-button" (click)="closeExpandedVideo()">
+                        <i class="material-icons">close</i>
+                      </div>
+                      <p class="description">
+                        Description: {{ video.description }}
+                      </p>
+                      <div class="likes-section">
+                        <i class="material-icons">favorite</i>
+                        <p class="likes">Likes: {{ video.likes }}</p>
+                      </div>
+                      <div class="comments-section">
+                        <p class="comments-heading">
+                          Comments: {{ video.comments.length }}
+                        </p>
+                        <div
+                          *ngFor="let comment of video.comments"
+                          class="comment"
+                        >
+                          <p>{{ comment.text }}</p>
+                          <p class="comment-details">
+                            By: {{ comment.author }}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <button
               class="subscribe-btn mat-button"
               mat-raised-button
@@ -122,60 +168,67 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
               <span class="custom-tab-label">Pictures</span>
             </ng-template>
 
-            <div class="image-grid">
-              <div class="image-container" *ngFor="let image of images">
-                <img [src]="image.url" (click)="expandImage(image)" />
-                <div
-                  class="expanded-view"
-                  [ngClass]="{ active: expandedImage === image }"
-                >
-                  <div class="image-details">
-                    <img [src]="image.url" class="expanded-image" />
-                    <div class="details">
-                      <div class="close-button" (click)="closeExpandedView()">
-                        <i class="material-icons">close</i>
-                      </div>
-                      <p class="description">
-                        Description: {{ image.description }}
-                      </p>
-                      <div class="flex-container">
-                        <!-- Your flex container with items -->
-                        <div class="flex-item">
-                          <div class="likes-section">
-                            <i class="material-icons">favorite</i>
-                            <p class="likes">Likes: {{ image.likes }}</p>
-                          </div>
+            <div style="margin-top:40px !important">
+              <div class="image-grid">
+                <div class="image-container" *ngFor="let image of images">
+                  <img [src]="image.url" (click)="expandImage(image)" />
+                  <div
+                    class="expanded-view"
+                    [ngClass]="{ active: expandedImage === image }"
+                  >
+                    <div class="image-details">
+                      <img [src]="image.url" class="expanded-image" />
+                      <div class="details">
+                        <div class="close-button" (click)="closeExpandedView()">
+                          <i class="material-icons">close</i>
+                        </div>
 
+                        <p class="description">
+                          Description: {{ image.description }}
+                        </p>
+                        <div class="flex-container">
                           <!-- Your flex container with items -->
+                          <div class="flex-item">
+                            <div class="likes-section">
+                              <i class="material-icons">favorite</i>
+                              <p class="likes">Likes: {{ image.likes }}</p>
+                            </div>
 
-                          <div class="likes-section">
-                            <i
-                              class="material-icons"
-                              (click)="toggleComments()"
-                            >
-                              {{ showComments ? 'close' : 'comment' }}
-                            </i>
-                            <p
-                              class="comments-heading"
-                              (click)="toggleComments()"
-                            >
-                              Comments:
-                              {{ image.comments.length }}
-                            </p>
-                          </div>
-                          <div class="comments-section" *ngIf="showComments">
-                            <div
-                              *ngFor="let comment of image.comments"
-                              class="comment"
-                            >
-                              <div class="comment-details" style="display:flex">
-                                <i class="material-icons">account_circle</i>
-                                <span class="username"
-                                  >{{ comment.author }}:</span
+                            <!-- Your flex container with items -->
+
+                            <div class="likes-section">
+                              <i
+                                class="material-icons"
+                                (click)="toggleComments()"
+                              >
+                                {{ showComments ? 'close' : 'comment' }}
+                              </i>
+                              <p
+                                class="comments-heading"
+                                (click)="toggleComments()"
+                              >
+                                Comments:
+                                {{ image.comments.length }}
+                              </p>
+                            </div>
+
+                            <div class="comments-section" *ngIf="showComments">
+                              <div
+                                *ngFor="let comment of image.comments"
+                                class="comment"
+                              >
+                                <div
+                                  class="comment-details"
+                                  style="display:flex; justify-content:column"
                                 >
-                                <span class="user-comment">{{
-                                  comment.text
-                                }}</span>
+                                  <i class="material-icons">account_circle</i>
+                                  <span class="username"
+                                    >{{ comment.author }}:</span
+                                  >
+                                  <span class="user-comment">{{
+                                    comment.text
+                                  }}</span>
+                                </div>
                               </div>
                             </div>
                           </div>
@@ -267,6 +320,14 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
         display: block;
       }
 
+      @media (max-width: 767px) {
+        .image-container img {
+          width: 100%;
+          height: 100%;
+          display: block;
+        }
+      }
+
       .expanded-view {
         position: fixed;
         top: 0;
@@ -315,6 +376,12 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
         overflow-y: auto;
       }
 
+      @media (max-width: 767px) {
+        .details {
+          display: none;
+        }
+      }
+
       .comments-section {
         margin-top: 10px;
       }
@@ -350,13 +417,109 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
       .comments-section {
         display: flex;
         align-items: center;
-        margin-bottom: 5px; /* Optional margin between sections */
+        margin-bottom: 1px; /* Optional margin between sections */
       }
 
       .likes-section .material-icons,
       .comments-section .material-icons {
         font-size: 24px;
         margin-right: 5px; /* Optional margin between icon and text */
+      }
+      /* Style for video grid */
+      .video-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+
+      /* Style for each video container */
+      .video-container {
+        position: relative;
+        width: calc(25% - 20px); /* Adjust as needed */
+      }
+
+      /* Style for videos within containers */
+      .video-container video {
+        width: 100%;
+        cursor: pointer;
+      }
+
+      /* Style for expanded view */
+      .expanded-view {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 80%;
+        height: 80vh;
+        background-color: white;
+        z-index: 1000;
+        display: none;
+        /* Add additional styles as needed */
+      }
+
+      .expanded-view.active {
+        display: block;
+      }
+
+      /* Style for expanded video within expanded view */
+      .expanded-view video {
+        width: 100%;
+        height: 70%;
+        object-fit: contain;
+      }
+
+      /* Style for details in expanded view */
+      .details {
+        padding: 20px;
+      }
+
+      /* Style for close button */
+      .close-button {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        cursor: pointer;
+      }
+
+      /* Style for description */
+      .description {
+        margin-bottom: 15px;
+      }
+
+      /* Style for likes section */
+      .likes-section {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+      }
+
+      .likes-section i {
+        margin-right: 5px;
+      }
+
+      /* Style for comments section */
+      .comments-section {
+        border-top: 1px solid #ccc;
+        padding-top: 15px;
+      }
+
+      .comments-heading {
+        font-weight: bold;
+        margin-bottom: 10px;
+      }
+
+      .comment {
+        margin-bottom: 10px;
+      }
+
+      .comment p {
+        margin: 5px 0;
+      }
+
+      .comment-details {
+        font-style: italic;
+        color: #666;
       }
     `,
   ],
@@ -439,7 +602,10 @@ export class UserHomePageComponent {
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
-  constructor(private dialog: MatDialog) {}
+  constructor(
+    private dialog: MatDialog,
+    private authensService: AuthenticationService
+  ) {}
 
   toggleBio() {
     this.bioShortened = !this.bioShortened;
@@ -478,6 +644,10 @@ export class UserHomePageComponent {
     });
   }
 
+  destroySession() {
+    this.authensService.logout();
+  }
+
   onCoverImageClick() {
     if (this.coverInput) {
       this.coverInput.nativeElement.click();
@@ -508,5 +678,36 @@ export class UserHomePageComponent {
       // For demo purposes, update the profileImageUrl with the uploaded file
       this.profileImageUrl = URL.createObjectURL(file);
     }
+  }
+  videos = [
+    {
+      url: 'https://youtu.be/HFHl_tXSyaE?list=RDHFHl_tXSyaE', // Sample video URL
+      description: 'Video 1 Description',
+      likes: 15,
+      comments: [
+        { text: 'Comment 1 for Video 1', author: 'User A' },
+        { text: 'Comment 2 for Video 1', author: 'User B' },
+      ],
+    },
+    {
+      url: 'https://www.example.com/video2.mp4', // Sample video URL
+      description: 'Video 2 Description',
+      likes: 10,
+      comments: [
+        { text: 'Comment 1 for Video 2', author: 'User X' },
+        { text: 'Comment 2 for Video 2', author: 'User Y' },
+        { text: 'Comment 3 for Video 2', author: 'User Z' },
+      ],
+    },
+    // Add more dummy video data as needed
+  ];
+  expandedVideo: any; // Variable to store the expanded video
+
+  expandVideo(video: any): void {
+    this.expandedVideo = video;
+  }
+
+  closeExpandedVideo(): void {
+    this.expandedVideo = null;
   }
 }

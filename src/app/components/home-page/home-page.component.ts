@@ -5,12 +5,24 @@ import { PaypalDialogComponent } from '../paypal-dialog/paypal-dialog.component'
 import { CommonModule } from '@angular/common';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
+import { uploadMediaService } from 'projects/services/src/lib/uploadMedia/uploadMedias';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { SearchBarComponent } from '../search-bar/search-bar.component';
 
 @Component({
   selector: 'app-home-page',
   standalone: true,
-  imports: [MaterialModule, CommonModule],
+  imports: [
+    MaterialModule,
+    CommonModule,
+    ReactiveFormsModule,
+    FormsModule,
+    SearchBarComponent,
+  ],
   template: `
+    <app-search-bar></app-search-bar>
     <div class="profile-cover">
       <!-- Profile Cover Image -->
       <img
@@ -49,7 +61,13 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
         <!-- Subscription and Content Request Buttons -->
 
         <div class="flex gap-40 m-t-10">
-          <button class="mat-button" mat-raised-button>Post</button>
+          <button
+            class="mat-button"
+            mat-raised-button
+            (click)="openImageUploadDialog(creatorId)"
+          >
+            Post
+          </button>
 
           <mat-icon class="m-t-5 cursor" (click)="openNotifications()"
             >notifications</mat-icon
@@ -60,7 +78,7 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
       <!-- Profile Details -->
       <div class="m-b-10">
         <div class="flex gap-20">
-          <h2>{{ name }}</h2>
+          <h2>{{ username }}</h2>
           <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
             >edit</mat-icon
           >
@@ -112,7 +130,37 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Pictures</span>
             </ng-template>
-            Content 2
+
+            <!-- Inside the Pictures tab -->
+            <input
+              matInput
+              placeholder="Image Title"
+              [(ngModel)]="imageTitle"
+            />
+            <input
+              matInput
+              placeholder="Image Description"
+              [(ngModel)]="imageDescription"
+            />
+            <button mat-raised-button (click)="fileInput.click()">
+              Upload Image
+            </button>
+            <input
+              #fileInput
+              type="file"
+              style="display: none"
+              (change)="onFileSelected($event)"
+            />
+            <div *ngIf="selectedFile">
+              <img
+                [src]="imagePreview"
+                alt="Selected Image"
+                style="max-width: 300px; max-height: 300px;"
+              />
+              <button mat-raised-button (click)="uploadSelectedImage()">
+                Upload
+              </button>
+            </div>
           </mat-tab>
         </mat-tab-group>
       </div>
@@ -123,8 +171,17 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
   ],
 })
 export class HomePageComponent {
+  // upload image
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+  selectedFile: File | null = null;
+  imagePreview: any;
+  imageTitle = '';
+  imageDescription = '';
+  creatorId: any;
+  //user description
   name = 'Sussan Albert';
-  location = 'USA';
+  // location = 'USA';
   joined = 'joined september 2023';
   bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
   bioShortened = true;
@@ -138,7 +195,15 @@ export class HomePageComponent {
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
-  constructor(private dialog: MatDialog) {}
+  userId: any;
+  location: any;
+  username: any;
+
+  constructor(
+    private dialog: MatDialog,
+    private uploadMediaService: uploadMediaService,
+    private route: ActivatedRoute
+  ) {}
 
   toggleBio() {
     this.bioShortened = !this.bioShortened;
@@ -148,6 +213,61 @@ export class HomePageComponent {
     if (this.bio.length > 50) {
       this.showReadMore = true;
     }
+    // Retrieve the userId and location from the URL query parameters
+    this.route.paramMap.subscribe((params: any) => {
+      console.log(params, 'params');
+      this.creatorId = params.get('userId') || '';
+      console.log(this.creatorId);
+    });
+
+    this.location = localStorage.getItem('userLocation');
+    this.username = localStorage.getItem('userName');
+  }
+
+  uploadSelectedImage(): void {
+    if (this.selectedFile) {
+      this.uploadMediaService
+        .uploadImage(
+          this.imageTitle,
+          this.imageDescription,
+          this.creatorId,
+          this.selectedFile
+        )
+        .subscribe(
+          (response) => {
+            // Handle success response
+            console.log('Image uploaded successfully:', response);
+          },
+          (error) => {
+            // Handle error
+            console.error('Error uploading image:', error);
+          }
+        );
+    }
+  }
+
+  onFileSelected(event: any) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedFile = input.files[0];
+
+      // Set up image preview
+      const reader = new FileReader();
+      reader.onload = () => {
+        this.imagePreview = reader.result;
+      };
+      reader.readAsDataURL(this.selectedFile);
+    }
+  }
+
+  openImageUploadDialog(item: any) {
+    const dialog = this.dialog.open(UploadImageDialogComponent, {
+      data: {
+        item,
+      },
+      width: '400px',
+      height: '500px',
+    });
   }
 
   openNotifications() {

@@ -8,6 +8,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { Router } from '@angular/router';
+import { jwtDecode } from 'jwt-decode';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
@@ -207,9 +208,16 @@ export class LoginComponent implements OnInit {
     this.authenService.login(data).subscribe(
       (res: any) => {
         console.log(res, 'response');
+        const isContentCreator = localStorage.getItem('isContentCreator');
+        const decodedToken: any = jwtDecode(res.userToken);
+        const userId = decodedToken._id;
 
-        if (res.status === 200) {
-          this.router.navigate(['/user-home-page']);
+        if (res.status === 200 && isContentCreator === 'true') {
+          this.router.navigate(['/home-page', userId]); // Navigating with the user ID as a parameter
+          this.toastr.success('User logged in successfully!', 'Success');
+          this.isAsyncCall = false;
+        } else if (res.status === 200 && isContentCreator === 'false') {
+          this.router.navigate(['/user-home-page', userId]); // Navigating with the user ID as a parameter
           this.toastr.success('User logged in successfully!', 'Success');
           this.isAsyncCall = false;
         }
@@ -222,22 +230,6 @@ export class LoginComponent implements OnInit {
         this.toastr.error('Login failed. Please try again.', 'Error');
       }
     );
-
-    // this.authService.login(data).subscribe({
-    //   next: (res) => {
-    //     if (res.jwt) this.router.navigateByUrl('');
-    //     this.isAsyncCall = false;
-    //   },
-    //   error: (err) => {
-    //     if (err.status === 400) {
-    //       // console.log('---errr',err.error.error.message);
-    //       this.isCorrectInfo = false;
-    //       this.isAsyncCall = false;
-    //       this.errormessage =
-    //         err.error.error.message || 'Invalid email Or Password!';
-    //     }
-    //   },
-    // });
   }
 
   Signup() {

@@ -13,6 +13,7 @@ import { AppComponent } from './app/app.component';
 import { AUTH_ROUTE } from './app/authentication/route';
 import { COMP_ROUTE } from './app/components';
 import { ToastrModule } from 'ngx-toastr'; // Import ngx-toastr
+import { BehaviorSubject } from 'rxjs';
 
 // platformBrowserDynamic().bootstrapModule(AppModule)
 //   .catch(err => console.error(err));
@@ -50,6 +51,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     importProvidersFrom(
       RouterModule.forRoot(routes),
+      BehaviorSubject,
       BrowserModule,
       BrowserAnimationsModule,
       HttpClientModule,
