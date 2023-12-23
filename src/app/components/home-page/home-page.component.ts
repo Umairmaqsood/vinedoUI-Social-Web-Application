@@ -5,13 +5,13 @@ import { PaypalDialogComponent } from '../paypal-dialog/paypal-dialog.component'
 import { CommonModule } from '@angular/common';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
-import { uploadMediaService } from 'projects/services/src/lib/uploadMedia/uploadMedias';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
 import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-dialog.component';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 
 @Component({
   selector: 'app-home-page',
@@ -25,124 +25,136 @@ import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-
     AsyncSpinnerComponent,
   ],
   template: `
-    <app-search-bar></app-search-bar>
-    <div class="profile-cover">
-      <!-- Profile Cover Image -->
-      <img
-        [src]="coverImageUrl"
-        alt="Profile Cover Image"
-        (click)="onCoverImageClick()"
-        style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
-      />
-      <input
-        type="file"
-        style="display: none;"
-        (change)="onCoverImageSelected($event)"
-        #coverInput
-      />
-    </div>
-
-    <div class="home-container">
-      <div class="flex" style="justify-content:space-between">
-        <div class="profile-info">
-          <!-- Profile Picture -->
-          <div class="profile-picture" (click)="onProfileImageClick()">
-            <img
-              [src]="profileImageUrl"
-              alt="Profile-Picture"
-              style="cursor:pointer"
-            />
-            <input
-              type="file"
-              style="display: none;"
-              (change)="onProfileImageSelected($event)"
-              #profileInput
-            />
-          </div>
-        </div>
-
-        <!-- Subscription and Content Request Buttons -->
-
-        <div class="flex gap-40 m-t-10">
-          <button
-            class="mat-button"
-            mat-raised-button
-            (click)="openVideoUploadDialog(creatorId)"
-          >
-            Post
-          </button>
-
-          <mat-icon class="m-t-5 cursor" (click)="openNotifications()"
-            >notifications</mat-icon
-          >
-        </div>
+    <ng-container *ngIf="!isAsyncCall">
+      <app-search-bar></app-search-bar>
+      <div class="profile-cover">
+        <!-- Profile Cover Image -->
+        <img
+          [src]="coverImageUrl"
+          alt="Profile Cover Image"
+          (click)="onCoverImageClick()"
+          style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
+        />
+        <input
+          type="file"
+          style="display: none;"
+          (change)="onCoverImageSelected($event)"
+          #coverInput
+        />
       </div>
 
-      <!-- Profile Details -->
-      <div class="m-b-10">
-        <div class="flex gap-20">
-          <h2>{{ username }}</h2>
-          <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
-            >edit</mat-icon
-          >
-        </div>
-        <div class="flex gap-20">
-          <div class="flex gap-10">
-            <mat-icon>location_on</mat-icon>
-            <label class="m-t-5">{{ location }}</label>
+      <div class="home-container">
+        <div class="flex" style="justify-content:space-between">
+          <div class="profile-info">
+            <!-- Profile Picture -->
+            <div class="profile-picture" (click)="onProfileImageClick()">
+              <img
+                [src]="profileImageUrl"
+                alt="Profile-Picture"
+                style="cursor:pointer"
+              />
+              <input
+                type="file"
+                style="display: none;"
+                (change)="onProfileImageSelected($event)"
+                #profileInput
+              />
+            </div>
           </div>
-          <div class="flex gap-10">
-            <mat-icon>date_range</mat-icon>
-            <label class="m-t-5">joined {{ joined }}</label>
-          </div>
-        </div>
-        <div style="width:40%">
-          <p>
-            {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
-            <button
-              style="color:#2aaa8a"
-              *ngIf="showReadMore"
-              mat-button
-              (click)="toggleBio()"
+
+          <!-- Subscription and Content Request Buttons -->
+
+          <div class="flex gap-10 m-t-10">
+            <mat-form-field>
+              <mat-label>Post</mat-label>
+              <mat-select [(value)]="selectedOption">
+                <mat-option (click)="openImageUploadDialog(creatorId)"
+                  >Upload Image</mat-option
+                >
+                <mat-option (click)="openVideoUploadDialog(creatorId)"
+                  >Upload Video</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+
+            <mat-icon class="m-t-15 cursor" (click)="openNotifications()"
+              >notifications</mat-icon
             >
-              {{ bioShortened ? 'Read More' : 'Read Less' }}
-            </button>
-          </p>
+          </div>
         </div>
 
-        <!-- Social Media Buttons -->
-        <div class="flex gap-20">
-          <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
+        <!-- Profile Details -->
+        <div class="m-b-10">
+          <div class="flex gap-20">
+            <h2>{{ username }}</h2>
+            <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
+              >edit</mat-icon
+            >
+          </div>
+          <div class="flex gap-20">
+            <div class="flex gap-10">
+              <mat-icon>location_on</mat-icon>
+              <label class="m-t-5">{{ location }}</label>
+            </div>
+            <div class="flex gap-10">
+              <mat-icon>date_range</mat-icon>
+              <label class="m-t-5">joined {{ joined }}</label>
+            </div>
+          </div>
+          <div style="width:40%">
+            <p>
+              {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
+              <button
+                style="color:#2aaa8a"
+                *ngIf="showReadMore"
+                mat-button
+                (click)="toggleBio()"
+              >
+                {{ bioShortened ? 'Read More' : 'Read Less' }}
+              </button>
+            </p>
+          </div>
 
-          <img [src]="instaUrl" alt="Insta" class="socialIcon" />
+          <!-- Social Media Buttons -->
+          <div class="flex gap-20">
+            <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
 
-          <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
+            <img [src]="instaUrl" alt="Insta" class="socialIcon" />
+
+            <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
+          </div>
+        </div>
+
+        <!-- Tab Group -->
+        <div class="mat-tab-color mat-tab-ripple m-top-30">
+          <mat-tab-group>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="custom-tab-label">Videos</span>
+              </ng-template>
+              Videos
+            </mat-tab>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="custom-tab-label">Pictures</span>
+              </ng-template>
+              Pictures
+            </mat-tab>
+          </mat-tab-group>
         </div>
       </div>
-
-      <!-- Tab Group -->
-      <div class="mat-tab-color mat-tab-ripple m-top-30">
-        <mat-tab-group>
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <span class="custom-tab-label">Videos</span>
-            </ng-template>
-            Content 1
-          </mat-tab>
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <span class="custom-tab-label">Pictures</span>
-            </ng-template>
-          </mat-tab>
-        </mat-tab-group>
-      </div>
-    </div>
+    </ng-container>
+    <ng-container *ngIf="isAsyncCall"></ng-container>
   `,
   styles: [
     '.home-container{padding:0px 100px !important} .custom-tab-label { color: white !important; } .mat-button { color:white !important;background-color: #1a1a1a !important; border:1px solid white } .mat-icon-label { margin-top: 4px; } .profile-picture { width: 150px; height: 150px; overflow: hidden; border-radius: 50%; } .profile-picture img{width: 100%;height: 100%;object-fit: cover;} .profile-info{margin-top:-70px} .profile-cover{margin:0px !important; padding:0px !important} .socialIcon{cursor:pointer; width:70px} cursor:{cursor:pointer}',
   ],
 })
 export class HomePageComponent {
+  ImageId: any;
+  VideoId: any;
+  isAsyncCall = false;
+  selectedOption!: string;
   creatorId: any;
   userId: any;
   location: any;
@@ -161,7 +173,13 @@ export class HomePageComponent {
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
-  constructor(private dialog: MatDialog, private route: ActivatedRoute) {}
+  constructor(
+    private dialog: MatDialog,
+    private route: ActivatedRoute,
+    private authensService: AuthenticationService
+  ) {
+    this.selectedOption = '';
+  }
 
   toggleBio() {
     this.bioShortened = !this.bioShortened;
@@ -182,6 +200,10 @@ export class HomePageComponent {
       this.showReadMore = true;
     }
     console.log(this.bio, 'bio');
+    this.getUploadImages();
+    this.getUploadVideos();
+    this.deleteUploadedImages();
+    this.deleteUploadedVideos();
   }
 
   openImageUploadDialog(item: any) {
@@ -259,5 +281,54 @@ export class HomePageComponent {
       // For demo purposes, update the profileImageUrl with the uploaded file
       this.profileImageUrl = URL.createObjectURL(file);
     }
+  }
+
+  page = 1;
+  pageSize = 12;
+  getUploadImages() {
+    this.isAsyncCall = true;
+    this.authensService
+      .getUploadedImages(this.creatorId, this.page, this.pageSize)
+      .subscribe((res: any) => {
+        if (res) {
+          this.isAsyncCall = false;
+          console.log(res, 'res of images');
+        }
+      });
+  }
+
+  getUploadVideos() {
+    this.isAsyncCall = true;
+    this.authensService
+      .getUploadedVideos(this.creatorId, this.page, this.pageSize)
+      .subscribe((res: any) => {
+        if (res) {
+          this.isAsyncCall = false;
+          console.log(res, 'res of videos');
+        }
+      });
+  }
+
+  deleteUploadedVideos() {
+    this.isAsyncCall = true;
+    this.authensService
+      .deletedUploadedVideos(this.creatorId, this.ImageId)
+      .subscribe((res: any) => {
+        if (res) {
+          this.isAsyncCall = false;
+          console.log(res, 'res of delete videos');
+        }
+      });
+  }
+  deleteUploadedImages() {
+    this.isAsyncCall = true;
+    this.authensService
+      .deletedUploadedImages(this.creatorId, this.VideoId)
+      .subscribe((res: any) => {
+        if (res) {
+          this.isAsyncCall = false;
+          console.log(res, 'res of delete images');
+        }
+      });
   }
 }

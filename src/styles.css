@@ -71,6 +71,9 @@ app-root {
 .m-t-10 {
   margin-top: 10px;
 }
+.m-t-15{
+    margin-top: 15px;
+  }
 .m-t-20 {
   margin-top: 20px;
 }
@@ -155,6 +158,16 @@ mat-toolbar {
   }
     
 }
+
+
+.mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {
+  cursor: pointer;
+  background-color: #1a1a1a !important;}
+
+
+    .mat-mdc-form-field-type-mat-select:not(.mat-form-field-disabled) .mat-mdc-text-field-wrapper {
+      cursor: pointer;
+      width: 70% !important;}
 
 
 /* .ngx-toastr.custom-toast {

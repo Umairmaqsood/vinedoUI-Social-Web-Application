@@ -219,4 +219,79 @@ export class AuthenticationService {
       headers
     );
   }
+
+  getUploadedImages(creatorId: string, page: number, pageSize: number) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    console.log(userToken);
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl +
+        `/image/getImages_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
+      headers
+    );
+  }
+
+  getUploadedVideos(creatorId: string, page: number, pageSize: number) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    console.log(userToken);
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl +
+        `/image/getVideo_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
+      headers
+    );
+  }
+
+  deletedUploadedImages(ImageId: string, creatorId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const body = {
+      ImageId: ImageId,
+      CreatorId: creatorId,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + 'deleteFile/Image',
+      body,
+      headers
+    );
+  }
+  deletedUploadedVideos(videoId: string, creatorId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const body = {
+      videoId: videoId,
+      CreatorId: creatorId,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + '/deleteFile/Video',
+      body,
+      headers
+    );
+  }
 }
