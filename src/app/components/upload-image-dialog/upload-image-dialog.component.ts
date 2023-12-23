@@ -3,13 +3,21 @@ import { CommonModule } from '@angular/common';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { uploadMediaService } from 'projects/services/src/lib/uploadMedia/uploadMedias';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
+import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-upload-image-dialog',
   standalone: true,
-  imports: [CommonModule, MaterialModule, FormsModule, ReactiveFormsModule],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    FormsModule,
+    ReactiveFormsModule,
+    AsyncSpinnerButtonComponent,
+  ],
   template: `
     <mat-card
       style=" background-color: #2d3436 !important;
@@ -53,9 +61,11 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
             style="max-width: 350px; max-height: 300px;"
           />
           <mat-card-actions>
-            <button mat-raised-button (click)="uploadSelectedImage()">
-              Upload
-            </button>
+            <app-async-spinner-button
+              [isAsyncCall]="isAsyncCall"
+              (click)="uploadSelectedImage()"
+              >Upload</app-async-spinner-button
+            >
           </mat-card-actions>
         </div>
         <!-- </form> -->
@@ -85,11 +95,13 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
   ],
 })
 export class UploadImageDialogComponent {
+  isAsyncCall = false;
   @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private authensService: AuthenticationService
+    private matDialogRef: MatDialogRef<UploadImageDialogComponent>,
+    private authensService: AuthenticationService,
+    private matSnackBar: MatSnackBar
   ) {}
   selectedFile: File | null = null;
   imagePreview: any;
@@ -98,6 +110,7 @@ export class UploadImageDialogComponent {
   creatorId = this.data.item;
 
   uploadSelectedImage(): void {
+    this.isAsyncCall = true;
     if (this.selectedFile) {
       this.authensService
         .uploadImage(
@@ -108,11 +121,11 @@ export class UploadImageDialogComponent {
         )
         .subscribe(
           (response) => {
-            // Handle success response
-            console.log('Image uploaded successfully:', response);
+            this.showSnackbar();
+            this.matDialogRef.close(true);
+            this.isAsyncCall = false;
           },
           (error) => {
-            // Handle error
             console.error('Error uploading image:', error);
           }
         );
@@ -132,5 +145,9 @@ export class UploadImageDialogComponent {
       reader.readAsDataURL(this.selectedFile);
     }
   }
-  saveData() {}
+  showSnackbar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.matSnackBar.open(`IMAGE UPLOADED SUCCESSFULLY!`, 'X', config);
+  }
 }

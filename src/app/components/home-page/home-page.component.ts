@@ -11,6 +11,7 @@ import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
+import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-dialog.component';
 
 @Component({
   selector: 'app-home-page',
@@ -66,7 +67,7 @@ import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component'
           <button
             class="mat-button"
             mat-raised-button
-            (click)="openImageUploadDialog(creatorId)"
+            (click)="openVideoUploadDialog(creatorId)"
           >
             Post
           </button>
@@ -185,6 +186,15 @@ export class HomePageComponent {
 
   openImageUploadDialog(item: any) {
     const dialog = this.dialog.open(UploadImageDialogComponent, {
+      data: {
+        item,
+      },
+      width: '400px',
+      height: '500px',
+    });
+  }
+  openVideoUploadDialog(item: any) {
+    const dialog = this.dialog.open(UploadVideoDialogComponent, {
       data: {
         item,
       },

@@ -191,7 +191,7 @@ export class AuthenticationService {
     );
   }
 
-  uploadVidoe(
+  uploadVideo(
     title: string,
     description: string,
     creatorId: string,
