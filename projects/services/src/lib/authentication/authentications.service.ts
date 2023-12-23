@@ -169,23 +169,20 @@ export class AuthenticationService {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('creatorId', creatorId);
-    formData.append('imageFile', file); // Assuming the field name in backend is 'imageFile'
+    formData.append('Image', file);
 
     // Retrieve user's token from local storage and parse it as an object
-    // const currentUser = localStorage.getItem('currentUser');
-    // const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
     // Set the token in the Authorization header
-
+    console.log(userToken);
     const headers = {
-      headers: new HttpHeaders().set(
-        'Headers',
-        'x-access-token ' + this.currentUserValue.userToken
-      ),
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
     };
 
     return this.http.post<any>(
-      `${this.backendUrl}/uploadFile/image`,
+      `${this.backendUrl}/uploadFile/Image`,
       formData,
       headers
     );
