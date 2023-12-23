@@ -10,6 +10,7 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
+import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
 
 @Component({
   selector: 'app-home-page',
@@ -20,6 +21,7 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
     ReactiveFormsModule,
     FormsModule,
     SearchBarComponent,
+    AsyncSpinnerComponent,
   ],
   template: `
     <app-search-bar></app-search-bar>
@@ -90,7 +92,7 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
           </div>
           <div class="flex gap-10">
             <mat-icon>date_range</mat-icon>
-            <label class="m-t-5">{{ joined }}</label>
+            <label class="m-t-5">joined {{ joined }}</label>
           </div>
         </div>
         <div style="width:40%">
@@ -130,37 +132,6 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Pictures</span>
             </ng-template>
-
-            <!-- Inside the Pictures tab -->
-            <input
-              matInput
-              placeholder="Image Title"
-              [(ngModel)]="imageTitle"
-            />
-            <input
-              matInput
-              placeholder="Image Description"
-              [(ngModel)]="imageDescription"
-            />
-            <button mat-raised-button (click)="fileInput.click()">
-              Upload Image
-            </button>
-            <input
-              #fileInput
-              type="file"
-              style="display: none"
-              (change)="onFileSelected($event)"
-            />
-            <div *ngIf="selectedFile">
-              <img
-                [src]="imagePreview"
-                alt="Selected Image"
-                style="max-width: 300px; max-height: 300px;"
-              />
-              <button mat-raised-button (click)="uploadSelectedImage()">
-                Upload
-              </button>
-            </div>
           </mat-tab>
         </mat-tab-group>
       </div>
@@ -171,19 +142,13 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
   ],
 })
 export class HomePageComponent {
-  // upload image
-
-  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
-  selectedFile: File | null = null;
-  imagePreview: any;
-  imageTitle = '';
-  imageDescription = '';
   creatorId: any;
-  //user description
-  name = 'Sussan Albert';
-  // location = 'USA';
-  joined = 'joined september 2023';
-  bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
+  userId: any;
+  location: any;
+  username: any;
+  bio: any;
+  joined: any;
+  // bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
   bioShortened = true;
   showReadMore = false;
   coverImageUrl = 'assets/pictures/pic1.jpg';
@@ -195,69 +160,27 @@ export class HomePageComponent {
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
-  userId: any;
-  location: any;
-  username: any;
-
-  constructor(
-    private dialog: MatDialog,
-    private uploadMediaService: uploadMediaService,
-    private route: ActivatedRoute
-  ) {}
+  constructor(private dialog: MatDialog, private route: ActivatedRoute) {}
 
   toggleBio() {
     this.bioShortened = !this.bioShortened;
   }
 
   ngOnInit() {
-    if (this.bio.length > 50) {
-      this.showReadMore = true;
-    }
     // Retrieve the userId and location from the URL query parameters
     this.route.paramMap.subscribe((params: any) => {
-      console.log(params, 'params');
       this.creatorId = params.get('userId') || '';
       console.log(this.creatorId);
     });
 
     this.location = localStorage.getItem('userLocation');
     this.username = localStorage.getItem('userName');
-  }
-
-  uploadSelectedImage(): void {
-    if (this.selectedFile) {
-      this.uploadMediaService
-        .uploadImage(
-          this.imageTitle,
-          this.imageDescription,
-          this.creatorId,
-          this.selectedFile
-        )
-        .subscribe(
-          (response) => {
-            // Handle success response
-            console.log('Image uploaded successfully:', response);
-          },
-          (error) => {
-            // Handle error
-            console.error('Error uploading image:', error);
-          }
-        );
+    this.bio = localStorage.getItem('userBio');
+    this.joined = localStorage.getItem('userCreated');
+    if (this.bio && this.bio?.length > 50) {
+      this.showReadMore = true;
     }
-  }
-
-  onFileSelected(event: any) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.selectedFile = input.files[0];
-
-      // Set up image preview
-      const reader = new FileReader();
-      reader.onload = () => {
-        this.imagePreview = reader.result;
-      };
-      reader.readAsDataURL(this.selectedFile);
-    }
+    console.log(this.bio, 'bio');
   }
 
   openImageUploadDialog(item: any) {
@@ -281,7 +204,7 @@ export class HomePageComponent {
     const dialogRef = this.dialog.open(EditProfileDialogComponent, {
       data: {
         item: {
-          name: this.name,
+          name: this.username,
           location: this.location,
           bio: this.bio,
         },
@@ -290,7 +213,7 @@ export class HomePageComponent {
       height: '500px',
     });
     dialogRef.componentInstance.dataUpdated.subscribe((updatedData: any) => {
-      this.name = updatedData.name;
+      this.username = updatedData.name;
       this.location = updatedData.location;
       this.bio = updatedData.bio;
     });

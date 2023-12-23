@@ -26,25 +26,6 @@ const routes: Routes = [
     path: '',
     children: AUTH_ROUTE,
   },
-
-  // {
-  //   path: '',
-  //   children: COMP_ROUTE,
-  // },
-
-  // {
-  //   path: '',
-  //   canActivateChild: [AuthGuard],
-  //   loadComponent: () =>
-  //     import('@berd/layout').then((component) => component.SidebarComponent),
-  //   children: [
-  //     {
-  //       path: '',
-  //       loadChildren: () =>
-  //         import('@berd/layout').then((component) => component.SIDEBAR_ROUTES),
-  //     },
-  //   ],
-  // },
 ];
 
 bootstrapApplication(AppComponent, {

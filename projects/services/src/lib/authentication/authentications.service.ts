@@ -65,6 +65,9 @@ export class AuthenticationService {
             'userPhoneNumber',
             decodedToken.phoneNumber || ''
           );
+          localStorage.setItem('userCreated', decodedToken.createdAt || '');
+          localStorage.setItem('userName', decodedToken.name || '');
+          localStorage.setItem('userBio', decodedToken.bio || '');
           localStorage.setItem('userLocation', decodedToken.location || '');
           localStorage.setItem(
             'isContentCreator',
@@ -183,6 +186,35 @@ export class AuthenticationService {
 
     return this.http.post<any>(
       `${this.backendUrl}/uploadFile/Image`,
+      formData,
+      headers
+    );
+  }
+
+  uploadVidoe(
+    title: string,
+    description: string,
+    creatorId: string,
+    file: File
+  ) {
+    const formData = new FormData();
+    formData.append('title', title);
+    formData.append('description', description);
+    formData.append('creatorId', creatorId);
+    formData.append('Video', file);
+
+    // Retrieve user's token from local storage and parse it as an object
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    console.log(userToken);
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.post<any>(
+      `${this.backendUrl}/uploadFile/Video`,
       formData,
       headers
     );
