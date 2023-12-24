@@ -17,6 +17,8 @@ import { MaterialModule } from 'projects/material/src/public-api';
             <mat-icon>close</mat-icon>
           </button>
         </div>
+
+        <h2 style="text-align:center">Notifications</h2>
         <ng-container *ngFor="let notification of notificationItems">
           <div
             style="display: flex; justify-content: space-between; gap: 40px;"
@@ -84,6 +86,8 @@ export class NotificationsDialogComponent {
       'margin-top': '5px',
     };
   }
+
+  constructor() {}
 
   notificationItems: any[] = [
     {

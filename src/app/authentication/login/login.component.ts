@@ -7,6 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 import { ToastrService } from 'ngx-toastr';
@@ -185,7 +186,8 @@ export class LoginComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router, // private authService: AuthService,
     private authenService: AuthenticationService,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -214,20 +216,19 @@ export class LoginComponent implements OnInit {
 
         if (res.status === 200 && isContentCreator === 'true') {
           this.router.navigate(['/home-page', userId]); // Navigating with the user ID as a parameter
-          this.toastr.success('User logged in successfully!', 'Success');
+          this.showSnackbar();
           this.isAsyncCall = false;
         } else if (res.status === 200 && isContentCreator === 'false') {
           this.router.navigate(['/user-home-page', userId]); // Navigating with the user ID as a parameter
-          this.toastr.success('User logged in successfully!', 'Success');
+          this.showSnackbar();
           this.isAsyncCall = false;
         }
       },
       (error) => {
         // Handle error scenarios if needed
         console.error(error);
+        this.errorSnackBar();
         this.isAsyncCall = false;
-        // Show an error toaster notification if login fails
-        this.toastr.error('Login failed. Please try again.', 'Error');
       }
     );
   }
@@ -237,5 +238,16 @@ export class LoginComponent implements OnInit {
   }
   Forgetpwd() {
     this.router.navigateByUrl('/forgot-password');
+  }
+
+  showSnackbar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`USER LOGGED IN SUCCESSFULLY, SUCCESS!`, 'X', config);
+  }
+  errorSnackBar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`LOGIN fAILED. PLEASE TRY AGAIN.', 'ERROR`, 'X', config);
   }
 }

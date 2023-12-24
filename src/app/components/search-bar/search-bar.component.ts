@@ -25,6 +25,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
               </button>
             </mat-form-field>
           </div>
+
           <div class="spacer"></div>
           <div>
             <!-- Logout Button -->

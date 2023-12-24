@@ -9,6 +9,7 @@ import {
   Validators,
 } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/lib/material.module';
@@ -286,15 +287,14 @@ export class SignUpComponent {
     private dialog: MatDialog,
     private router: Router,
     private toastr: ToastrService,
-    private authensService: AuthenticationService // private _bSUserTypeService: BSUserTypeService, // private notificationService: NotificationService
+    private authensService: AuthenticationService,
+    private snackbar: MatSnackBar
   ) {
     let MOBILE_PATTERN = /^[0-9]{10,10}$/;
     this.signupForm = this.formBuilder.group(
       {
-        // siteId: ['', Validators.required],
-        // userType: ['', Validators.required],
         name: ['', Validators.required],
-        // lastName: ['', Validators.required],
+
         email: ['', [Validators.required, Validators.email]],
         phoneNumber: [
           '',
@@ -312,9 +312,7 @@ export class SignUpComponent {
     );
   }
 
-  ngOnInit() {
-    this.getBsUserType();
-  }
+  ngOnInit() {}
   patternValidator(): ValidatorFn {
     return (control: AbstractControl): { [key: string]: any } | null => {
       if (!control.value) {
@@ -327,12 +325,6 @@ export class SignUpComponent {
       console.log('valid', valid);
       return valid ? null : { invalidPassword: true };
     };
-  }
-
-  getBsUserType() {
-    // this._bSUserTypeService.findByQuery('populate=*').subscribe((res: any) => {
-    //   this.userTypes = res.data;
-    // });
   }
 
   onSubmit(): void {
@@ -361,13 +353,10 @@ export class SignUpComponent {
       },
       (error) => {
         if (error.status === 409) {
-          this.toastr.error('User is already registered.', 'Error');
+          this.errorSnackbarRegistered();
         } else {
           console.error(error);
-          this.toastr.error(
-            'Error occurred during signup. Please try again.',
-            'Error'
-          );
+          this.errorSnackbar();
         }
         this.isAsyncCall = false;
       }
@@ -388,5 +377,31 @@ export class SignUpComponent {
   }
   login() {
     this.router.navigateByUrl('');
+  }
+
+  successSnackbarRegistered(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(
+      `USER ACCOUNT CREATED SUCCESSFULLY.', 'SUCCESS`,
+      'X',
+      config
+    );
+  }
+
+  errorSnackbarRegistered(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`USER IS ALREADY REGISTERED, ERROR`, 'X', config);
+  }
+
+  errorSnackbar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(
+      `ERROR OCCURED DURING SIGNUP. PLEASE TRY AGAIN, ERROR.`,
+      'X',
+      config
+    );
   }
 }

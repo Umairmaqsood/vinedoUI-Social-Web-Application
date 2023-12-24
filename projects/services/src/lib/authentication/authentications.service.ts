@@ -249,7 +249,7 @@ export class AuthenticationService {
 
     return this.http.get<any>(
       this.backendUrl +
-        `/image/getVideo_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
+        `/video/getVideo_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
       headers
     );
   }
@@ -269,7 +269,7 @@ export class AuthenticationService {
     };
 
     return this.http.post<any>(
-      this.backendUrl + 'deleteFile/Image',
+      this.backendUrl + '/deleteFile/Image',
       body,
       headers
     );

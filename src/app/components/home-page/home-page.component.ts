@@ -8,10 +8,10 @@ import { NotificationsDialogComponent } from '../notifications-dialog/notificati
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
 import { ActivatedRoute, Router } from '@angular/router';
-import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
 import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-dialog.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-home-page',
@@ -21,12 +21,35 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
     CommonModule,
     ReactiveFormsModule,
     FormsModule,
-    SearchBarComponent,
     AsyncSpinnerComponent,
   ],
   template: `
+    <ng-container *ngIf="isAsyncCall"></ng-container>
     <ng-container *ngIf="!isAsyncCall">
-      <app-search-bar></app-search-bar>
+      <!------------------------- Navbar ----------------------------->
+
+      <div class="container">
+        <mat-toolbar color="primary">
+          <mat-toolbar-row>
+            <div fxHide.lt-sm fxShow.gt-sm>
+              <!-- Logo -->
+              <img src="assets/pictures/vinedo.png" alt="Logo" height="40px" />
+            </div>
+            <div fxHide.lt-sm fxShow.gt-sm class="spacer"></div>
+
+            <div class="spacer"></div>
+            <div>
+              <!-- Logout Button -->
+              <button mat-icon-button (click)="logout()">
+                <mat-icon style="color:white">logout</mat-icon>
+              </button>
+            </div>
+          </mat-toolbar-row>
+        </mat-toolbar>
+      </div>
+
+      <!------------------------ Cover Image ----------------------------->
+
       <div class="profile-cover">
         <!-- Profile Cover Image -->
         <img
@@ -42,6 +65,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           #coverInput
         />
       </div>
+
+      <!------------------------ Profile Image  -------------------------->
 
       <div class="home-container">
         <div class="flex" style="justify-content:space-between">
@@ -62,7 +87,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
             </div>
           </div>
 
-          <!-- Subscription and Content Request Buttons -->
+          <!-------- POST Select button and Notifications icon ----------------->
 
           <div class="flex gap-10 m-t-10">
             <mat-form-field>
@@ -83,7 +108,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           </div>
         </div>
 
-        <!-- Profile Details -->
+        <!-------------------------- Profile Details --------------------------->
+
         <div class="m-b-10">
           <div class="flex gap-20">
             <h2>{{ username }}</h2>
@@ -115,7 +141,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
             </p>
           </div>
 
-          <!-- Social Media Buttons -->
+          <!---------------------------- Social Media Buttons ------------------------>
+
           <div class="flex gap-20">
             <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
 
@@ -125,7 +152,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           </div>
         </div>
 
-        <!-- Tab Group -->
+        <!--------------------- Tab Group ----------------------------->
+
         <div class="mat-tab-color mat-tab-ripple m-top-30">
           <mat-tab-group>
             <mat-tab>
@@ -144,7 +172,6 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
         </div>
       </div>
     </ng-container>
-    <ng-container *ngIf="isAsyncCall"></ng-container>
   `,
   styles: [
     '.home-container{padding:0px 100px !important} .custom-tab-label { color: white !important; } .mat-button { color:white !important;background-color: #1a1a1a !important; border:1px solid white } .mat-icon-label { margin-top: 4px; } .profile-picture { width: 150px; height: 150px; overflow: hidden; border-radius: 50%; } .profile-picture img{width: 100%;height: 100%;object-fit: cover;} .profile-info{margin-top:-70px} .profile-cover{margin:0px !important; padding:0px !important} .socialIcon{cursor:pointer; width:70px} cursor:{cursor:pointer}',
@@ -176,7 +203,8 @@ export class HomePageComponent {
   constructor(
     private dialog: MatDialog,
     private route: ActivatedRoute,
-    private authensService: AuthenticationService
+    private authensService: AuthenticationService,
+    private snackbar: MatSnackBar
   ) {
     this.selectedOption = '';
   }
@@ -191,7 +219,6 @@ export class HomePageComponent {
       this.creatorId = params.get('userId') || '';
       console.log(this.creatorId);
     });
-
     this.location = localStorage.getItem('userLocation');
     this.username = localStorage.getItem('userName');
     this.bio = localStorage.getItem('userBio');
@@ -215,6 +242,7 @@ export class HomePageComponent {
       height: '500px',
     });
   }
+
   openVideoUploadDialog(item: any) {
     const dialog = this.dialog.open(UploadVideoDialogComponent, {
       data: {
@@ -330,5 +358,16 @@ export class HomePageComponent {
           console.log(res, 'res of delete images');
         }
       });
+  }
+
+  logout() {
+    this.authensService.logout();
+    this.logoutSnackbar();
+  }
+
+  logoutSnackbar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`LOGGED OUT SUCCESSFULLY`, 'X', config);
   }
 }
