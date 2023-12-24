@@ -12,9 +12,11 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
   standalone: true,
   imports: [MaterialModule, CommonModule, SearchBarComponent],
   template: `
-    <!-- Search Bar-->
+    <!----------------------- Search Bar --------------->
 
     <app-search-bar></app-search-bar>
+
+    <!----------------------- Cover Image --------------->
 
     <div class="profile-cover">
       <!-- Profile Cover Image -->
@@ -31,6 +33,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
         #coverInput
       />
     </div>
+
+    <!----------------------- Profile Image --------------->
 
     <div class="home-container">
       <div class="flex" style="justify-content:space-between">
@@ -61,7 +65,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
         </div>
       </div>
 
-      <!-- Profile Details -->
+      <!---------------- Profile Details ---------------->
+
       <div class="m-b-10">
         <div class="flex gap-20">
           <h2>{{ name }}</h2>
@@ -93,7 +98,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           </p>
         </div>
 
-        <!-- Social Media Buttons -->
+        <!-------------- Social Media Buttons -------------------->
         <div class="flex gap-20">
           <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
 
@@ -103,13 +108,17 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
         </div>
       </div>
 
-      <!-- Tab Group -->
+      <!---------------------------- Tab Group -------------------------->
+
       <div class="mat-tab-color mat-tab-ripple m-top-30">
         <mat-tab-group>
           <mat-tab>
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Videos</span>
             </ng-template>
+
+            <h2 style="text-align:center">Videos</h2>
+
             <div class="video-grid">
               <div class="video-container" *ngFor="let video of videos">
                 <video [src]="video.url" (click)="expandVideo(video)"></video>
@@ -167,6 +176,8 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
             <ng-template mat-tab-label>
               <span class="custom-tab-label">Pictures</span>
             </ng-template>
+
+            <h2 style="text-align:center">Pictures</h2>
 
             <div style="margin-top:40px !important">
               <div class="image-grid">

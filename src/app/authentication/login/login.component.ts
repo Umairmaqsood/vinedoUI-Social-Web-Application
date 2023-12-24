@@ -243,7 +243,7 @@ export class LoginComponent implements OnInit {
   showSnackbar(): void {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
-    this.snackbar.open(`USER LOGGED IN SUCCESSFULLY, SUCCESS!`, 'X', config);
+    this.snackbar.open(`LOGGED IN SUCCESSFULLY, SUCCESS!`, 'X', config);
   }
   errorSnackBar(): void {
     const config = new MatSnackBarConfig();
