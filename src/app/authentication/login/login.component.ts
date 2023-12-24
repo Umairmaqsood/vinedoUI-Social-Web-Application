@@ -248,6 +248,6 @@ export class LoginComponent implements OnInit {
   errorSnackBar(): void {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
-    this.snackbar.open(`LOGIN fAILED. PLEASE TRY AGAIN.', 'ERROR`, 'X', config);
+    this.snackbar.open(`LOGIN FAILED. PLEASE TRY AGAIN.', 'ERROR`, 'X', config);
   }
 }

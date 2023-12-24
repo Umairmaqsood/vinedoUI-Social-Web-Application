@@ -2,11 +2,19 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Inject, Output } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { MaterialModule } from 'projects/material/src/lib/material.module';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
+import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
 
 @Component({
   selector: 'app-edit-profile-dialog',
-  imports: [MaterialModule, CommonModule, ReactiveFormsModule],
+  imports: [
+    MaterialModule,
+    CommonModule,
+    ReactiveFormsModule,
+    AsyncSpinnerButtonComponent,
+  ],
   standalone: true,
   template: `
     <mat-card
@@ -50,9 +58,15 @@ import { MaterialModule } from 'projects/material/src/lib/material.module';
       </mat-card-content>
 
       <mat-card-actions>
-        <button mat-raised-button class="saveBtn" (click)="saveData()">
+        <!-- <button mat-raised-button class="saveBtn" (click)="saveData()">
           Save
-        </button>
+        </button> -->
+
+        <app-async-spinner-button
+          [isAsyncCall]="isAsyncCall"
+          (click)="saveData()"
+          >Save</app-async-spinner-button
+        >
       </mat-card-actions>
     </mat-card>
   `,
@@ -78,13 +92,16 @@ import { MaterialModule } from 'projects/material/src/lib/material.module';
 export class EditProfileDialogComponent {
   @Output() dataUpdated = new EventEmitter<any>();
 
+  isAsyncCall = false;
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
   tiktokUrl = 'assets/pictures/tiktok.png';
   constructor(
     @Inject(MAT_DIALOG_DATA) public data: any,
     private matDialogRef: MatDialogRef<EditProfileDialogComponent>,
-    private _fb: FormBuilder
+    private _fb: FormBuilder,
+    private authensService: AuthenticationService,
+    private snackbar: MatSnackBar
   ) {
     console.log(data, 'data');
   }
@@ -119,14 +136,36 @@ export class EditProfileDialogComponent {
   }
 
   saveData() {
+    this.isAsyncCall = true;
     if (this.editDataForm.valid) {
       const updatedData = {
         name: this.editDataForm.value.name,
         location: this.editDataForm.value.location,
         bio: this.editDataForm.value.bio,
       };
-      this.dataUpdated.emit(updatedData);
-      this.matDialogRef.close(true);
+
+      this.authensService
+        .updatePersonalInfo(
+          this.data.item.userId,
+          updatedData.name,
+          updatedData.location,
+          updatedData.bio
+        )
+        .subscribe((res) => {
+          if (res) {
+            this.updateInfoSnackBar();
+            this.isAsyncCall = false;
+            this.matDialogRef.close(res);
+          }
+        });
     }
+  }
+
+  ngOnDestroy() {}
+
+  updateInfoSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`PERSONAL INFO UPDATED SUCCESSFULLY`, 'X', config);
   }
 }

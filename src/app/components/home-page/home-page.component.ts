@@ -11,6 +11,7 @@ import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component'
 import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-dialog.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
 
 @Component({
   selector: 'app-home-page',
@@ -21,276 +22,292 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
     ReactiveFormsModule,
     FormsModule,
     AsyncSpinnerComponent,
+    AsyncSpinnerButtonComponent,
   ],
   template: `
-    <!-- <app-async-spinner *ngIf="isAsyncCall"></app-async-spinner> -->
-    <!-- <ng-container *ngIf="!isAsyncCall"> -->
-    <!------------------------- Navbar ----------------------------->
+    <app-async-spinner *ngIf="isAsyncCall"></app-async-spinner>
+    <ng-container *ngIf="!isAsyncCall">
+      <!------------------------- Navbar ----------------------------->
 
-    <div class="container">
-      <mat-toolbar color="primary">
-        <mat-toolbar-row>
-          <div fxHide.lt-sm fxShow.gt-sm>
-            <!-- Logo -->
-            <img src="assets/pictures/vinedo.png" alt="Logo" height="40px" />
-          </div>
-          <div fxHide.lt-sm fxShow.gt-sm class="spacer"></div>
+      <div class="container">
+        <mat-toolbar color="primary">
+          <mat-toolbar-row>
+            <div fxHide.lt-sm fxShow.gt-sm>
+              <!-- Logo -->
+              <img src="assets/pictures/vinedo.png" alt="Logo" height="40px" />
+            </div>
+            <div fxHide.lt-sm fxShow.gt-sm class="spacer"></div>
 
-          <div class="spacer"></div>
-          <div>
-            <!-- Logout Button -->
-            <button mat-icon-button (click)="logout()">
-              <mat-icon style="color:white">logout</mat-icon>
-            </button>
-          </div>
-        </mat-toolbar-row>
-      </mat-toolbar>
-    </div>
-
-    <!------------------------ Cover Image ----------------------------->
-
-    <div class="profile-cover">
-      <!-- Profile Cover Image -->
-      <img
-        [src]="coverImageUrl"
-        alt="Profile Cover Image"
-        (click)="onCoverImageClick()"
-        style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
-      />
-      <input
-        type="file"
-        style="display: none;"
-        (change)="onCoverImageSelected($event)"
-        #coverInput
-      />
-    </div>
-
-    <!------------------------ Profile Image  -------------------------->
-
-    <div class="home-container">
-      <div class="flex" style="justify-content:space-between">
-        <div class="profile-info">
-          <!-- Profile Picture -->
-          <div class="profile-picture" (click)="onProfileImageClick()">
-            <img
-              [src]="profileImageUrl"
-              alt="Profile-Picture"
-              style="cursor:pointer"
-            />
-            <input
-              type="file"
-              style="display: none;"
-              (change)="onProfileImageSelected($event)"
-              #profileInput
-            />
-          </div>
-        </div>
-
-        <!-------- POST Select button and Notifications icon ----------------->
-
-        <div class="flex gap-10 m-t-10">
-          <mat-form-field>
-            <mat-label>Post</mat-label>
-            <mat-select>
-              <mat-option (click)="openImageUploadDialog(creatorId)"
-                >Upload Image</mat-option
-              >
-              <mat-option (click)="openVideoUploadDialog(creatorId)"
-                >Upload Video</mat-option
-              >
-            </mat-select>
-          </mat-form-field>
-
-          <mat-icon class="m-t-15 cursor" (click)="openNotifications()"
-            >notifications</mat-icon
-          >
-        </div>
+            <div class="spacer"></div>
+            <div>
+              <!-- Logout Button -->
+              <button mat-icon-button (click)="logout()">
+                <mat-icon style="color:white">logout</mat-icon>
+              </button>
+            </div>
+          </mat-toolbar-row>
+        </mat-toolbar>
       </div>
 
-      <!-------------------------- Profile Details --------------------------->
+      <!------------------------ Cover Image ----------------------------->
 
-      <div class="m-b-10">
-        <div class="flex gap-20">
-          <h2>{{ username }}</h2>
-          <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
-            >edit</mat-icon
-          >
-        </div>
-        <div class="flex gap-20">
-          <div class="flex gap-10">
-            <mat-icon>location_on</mat-icon>
-            <label class="m-t-5">{{ location }}</label>
-          </div>
-          <div class="flex gap-10">
-            <mat-icon>date_range</mat-icon>
-            <label class="m-t-5">joined {{ joined }}</label>
-          </div>
-        </div>
-        <div style="width:40%">
-          <p>
-            {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
-            <button
-              style="color:#2aaa8a"
-              *ngIf="showReadMore"
-              mat-button
-              (click)="toggleBio()"
-            >
-              {{ bioShortened ? 'Read More' : 'Read Less' }}
-            </button>
-          </p>
-        </div>
-
-        <!---------------------------- Social Media Buttons ------------------------>
-
-        <div class="flex gap-20">
-          <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
-
-          <img [src]="instaUrl" alt="Insta" class="socialIcon" />
-
-          <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
-        </div>
+      <div class="profile-cover">
+        <!-- Profile Cover Image -->
+        <img
+          [src]="coverImageUrl"
+          alt="Profile Cover Image"
+          (click)="onCoverImageClick()"
+          style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
+        />
+        <input
+          type="file"
+          style="display: none;"
+          (change)="onCoverImageSelected($event)"
+          #coverInput
+        />
       </div>
 
-      <!--------------------- Tab Groups of pictures and Videos ----------------------------->
+      <!------------------------ Profile Image  -------------------------->
 
-      <div class="mat-tab-color mat-tab-ripple m-top-30">
-        <mat-tab-group>
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <span class="custom-tab-label">Videos</span>
-            </ng-template>
+      <div class="home-container">
+        <div class="flex" style="justify-content:space-between">
+          <div class="profile-info">
+            <!-- Profile Picture -->
+            <div class="profile-picture" (click)="onProfileImageClick()">
+              <img
+                [src]="profileImageUrl"
+                alt="Profile-Picture"
+                style="cursor:pointer"
+              />
+              <input
+                type="file"
+                style="display: none;"
+                (change)="onProfileImageSelected($event)"
+                #profileInput
+              />
+            </div>
+          </div>
 
-            <h2 style="text-align:center">Videos</h2>
-            <ng-container *ngIf="!isVideoAsyncCall">
-              <div class="video-grid">
-                <div
-                  class="video-container"
-                  *ngFor="let video of videoDataArray"
+          <!-------- POST Select button and Notifications icon ----------------->
+
+          <div class="flex gap-10 m-t-10">
+            <mat-form-field>
+              <mat-label>Post</mat-label>
+              <mat-select>
+                <mat-option (click)="openImageUploadDialog(creatorId)"
+                  >Upload Image</mat-option
                 >
-                  <div class="video-wrapper" (click)="expandVideo(video)">
-                    <video
-                      [src]="video.objectURL"
-                      [title]="video.title"
-                    ></video>
-                    <div class="video-description">{{ video.description }}</div>
+                <mat-option (click)="openVideoUploadDialog(creatorId)"
+                  >Upload Video</mat-option
+                >
+              </mat-select>
+            </mat-form-field>
+
+            <mat-icon class="m-t-15 cursor" (click)="openNotifications()"
+              >notifications</mat-icon
+            >
+          </div>
+        </div>
+
+        <!-------------------------- Profile Details --------------------------->
+
+        <div class="m-b-10">
+          <div class="flex gap-20">
+            <h2>{{ username }}</h2>
+            <mat-icon
+              (click)="editProfileDialog(creatorId)"
+              class="m-t-20 cursor"
+              >edit</mat-icon
+            >
+          </div>
+          <div class="flex gap-20">
+            <div class="flex gap-10">
+              <mat-icon>location_on</mat-icon>
+              <label class="m-t-5">{{ location }}</label>
+            </div>
+            <div class="flex gap-10">
+              <mat-icon>date_range</mat-icon>
+              <label class="m-t-5">joined {{ joined }}</label>
+            </div>
+          </div>
+          <div style="width:40%">
+            <p>
+              {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
+              <button
+                style="color:#2aaa8a"
+                *ngIf="showReadMore"
+                mat-button
+                (click)="toggleBio()"
+              >
+                {{ bioShortened ? 'More Info' : 'Collapse Info' }}
+              </button>
+            </p>
+          </div>
+
+          <!---------------------------- Social Media Buttons ------------------------>
+
+          <div class="flex gap-20">
+            <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
+
+            <img [src]="instaUrl" alt="Insta" class="socialIcon" />
+
+            <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
+          </div>
+        </div>
+
+        <!--------------------- Tab Groups of pictures and Videos ----------------------------->
+
+        <div class="mat-tab-color mat-tab-ripple m-top-30">
+          <mat-tab-group>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="custom-tab-label">Videos</span>
+              </ng-template>
+
+              <h2 style="text-align:center">Videos</h2>
+              <ng-container *ngIf="!isVideoAsyncCall">
+                <div class="video-grid">
+                  <div
+                    class="video-container"
+                    *ngFor="let video of videoDataArray"
+                  >
+                    <div class="video-wrapper" (click)="expandVideo(video)">
+                      <video
+                        [src]="video.objectURL"
+                        [title]="video.title"
+                      ></video>
+                      <div class="video-description">
+                        {{ video.description }}
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </ng-container>
+              </ng-container>
 
-            <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
-          </mat-tab>
+              <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
+            </mat-tab>
 
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <span class="custom-tab-label">Pictures</span>
-            </ng-template>
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <span class="custom-tab-label">Pictures</span>
+              </ng-template>
 
-            <h2 style="text-align:center">Pictures</h2>
-
-            <ng-container *ngIf="!isImageAsyncCall">
-              <div style="margin-top:40px !important">
-                <div class="image-grid">
-                  <div
-                    class="image-container"
-                    *ngFor="let images of imageDataArray"
-                  >
-                    <img
-                      [src]="images.objectURL"
-                      [alt]="images.title"
-                      (click)="expandImage(images)"
-                    />
+              <h2 style="text-align:center">Pictures</h2>
+              <ng-container *ngIf="!isImageAsyncCall">
+                <div style="margin-top:40px !important">
+                  <div class="image-grid">
                     <div
-                      class="expanded-view"
-                      [ngClass]="{ active: expandedImage === images }"
+                      class="image-container"
+                      *ngFor="let images of imageDataArray"
                     >
-                      <div class="image-details">
-                        <img [src]="images.objectURL" class="expanded-image" />
-                        <div class="details">
-                          <div
-                            class="close-button"
-                            (click)="closeExpandedView()"
-                          >
-                            <i class="material-icons">close</i>
-                          </div>
+                      <img
+                        [src]="images.objectURL"
+                        [alt]="images.title"
+                        (click)="expandImage(images)"
+                      />
+                      <div
+                        class="expanded-view"
+                        [ngClass]="{ active: expandedImage === images }"
+                      >
+                        <div class="image-details">
+                          <img
+                            [src]="images.objectURL"
+                            class="expanded-image"
+                          />
+                          <div class="details">
+                            <div
+                              class="close-button"
+                              (click)="closeExpandedView()"
+                            >
+                              <i class="material-icons">close</i>
+                            </div>
 
-                          <h3 class="description">
-                            Description: {{ images.description }}
-                          </h3>
+                            <h3 class="description">
+                              Description: {{ images.description }}
+                            </h3>
 
-                          <div class="flex-container">
-                            <!-- Your flex container with items -->
-                            <div class="flex-item">
-                              <div class="likes-section">
-                                <i class="material-icons">favorite</i>
-                                <p class="likes">Likes: {{ images.likes }}</p>
-                              </div>
-
+                            <div class="flex-container">
                               <!-- Your flex container with items -->
+                              <div class="flex-item">
+                                <div class="likes-section">
+                                  <i class="material-icons">favorite</i>
+                                  <p class="likes">Likes: {{ images.likes }}</p>
+                                </div>
 
-                              <div
-                                class="likes-section"
-                                style="margin-top:-20px"
-                              >
-                                <i
-                                  class="material-icons"
-                                  (click)="toggleComments()"
-                                >
-                                  {{ showComments ? 'close' : 'comment' }}
-                                </i>
-                                <p
-                                  class="comments-heading"
-                                  (click)="toggleComments()"
-                                >
-                                  Comments:
-                                  {{ images.comments.length }}
-                                </p>
-                              </div>
+                                <!-- Your flex container with items -->
 
-                              <div
-                                class="comments-section"
-                                *ngIf="showComments"
-                              >
                                 <div
-                                  *ngFor="let comment of images.comments"
-                                  class="comment"
+                                  class="likes-section"
+                                  style="margin-top:-20px"
+                                >
+                                  <i
+                                    class="material-icons"
+                                    (click)="toggleComments()"
+                                  >
+                                    {{ showComments ? 'close' : 'comment' }}
+                                  </i>
+                                  <p
+                                    class="comments-heading"
+                                    (click)="toggleComments()"
+                                  >
+                                    Comments:
+                                    {{ images.comments.length }}
+                                  </p>
+                                </div>
+
+                                <div
+                                  class="comments-section"
+                                  *ngIf="showComments"
                                 >
                                   <div
-                                    class="comment-details"
-                                    style="display:flex; justify-content:column"
+                                    *ngFor="let comment of images.comments"
+                                    class="comment"
                                   >
-                                    <i class="material-icons">account_circle</i>
-                                    <span class="username"
-                                      >{{ comment.author }}:</span
+                                    <div
+                                      class="comment-details"
+                                      style="display:flex; justify-content:column"
                                     >
-                                    <span class="user-comment">{{
-                                      comment.text
-                                    }}</span>
+                                      <i class="material-icons"
+                                        >account_circle</i
+                                      >
+                                      <span class="username"
+                                        >{{ comment.author }}:</span
+                                      >
+                                      <span class="user-comment">{{
+                                        comment.text
+                                      }}</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          <button
+                            <!-- <button
                             mat-raised-button
                             style="background-color:#2aaa8a"
                           >
                             Delete
-                          </button>
+                          </button> -->
+
+                            <app-async-spinner-button
+                              [isAsyncCall]="isAsyncDeleteImageCall"
+                              (click)="
+                                deleteUploadedImages(images.imageId, creatorId)
+                              "
+                              >Delete</app-async-spinner-button
+                            >
+                          </div>
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </ng-container>
-
-            <app-async-spinner *ngIf="isImageAsyncCall"></app-async-spinner>
-          </mat-tab>
-        </mat-tab-group>
+              </ng-container>
+              <app-async-spinner *ngIf="isImageAsyncCall"></app-async-spinner>
+            </mat-tab>
+          </mat-tab-group>
+        </div>
       </div>
-    </div>
-    <!-- </ng-container> -->
+    </ng-container>
   `,
   styles: [
     `
@@ -509,6 +526,7 @@ export class HomePageComponent implements OnInit {
   isAsyncCall = false;
   isImageAsyncCall = false;
   isVideoAsyncCall = false;
+  isAsyncDeleteImageCall = false;
   creatorId: any;
   // --------------- Profile details  --------------------
   userId: any;
@@ -516,7 +534,6 @@ export class HomePageComponent implements OnInit {
   username: any;
   bio: any;
   joined: any;
-  // bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
   bioShortened = true;
   showReadMore = false;
 
@@ -607,6 +624,7 @@ export class HomePageComponent implements OnInit {
     const dialogRef = this.dialog.open(EditProfileDialogComponent, {
       data: {
         item: {
+          userId: this.creatorId,
           name: this.username,
           location: this.location,
           bio: this.bio,
@@ -615,10 +633,22 @@ export class HomePageComponent implements OnInit {
       width: '400px',
       height: '500px',
     });
-    dialogRef.componentInstance.dataUpdated.subscribe((updatedData: any) => {
-      this.username = updatedData.name;
-      this.location = updatedData.location;
-      this.bio = updatedData.bio;
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result?.isConfirmed) {
+        console.log(result, 'resultofdialogdata');
+        this.getPersonalInfo();
+      }
+    });
+  }
+
+  // ----------------- Get Personal Info Against specific Id  -------------------
+  getPersonalInfo() {
+    this.isAsyncCall = true;
+    this.authensService.getPersonalInfo(this.creatorId).subscribe((res) => {
+      if (res) {
+        console.log(res, 'get personal info');
+        this.isAsyncCall = false;
+      }
     });
   }
 
@@ -713,13 +743,15 @@ export class HomePageComponent implements OnInit {
 
   // --------------- Deleted Images Api --------------------
 
-  deleteUploadedImages() {
-    this.isAsyncCall = true;
+  deleteUploadedImages(imageId: any, creatorId: any) {
+    this.isAsyncDeleteImageCall = true;
     this.authensService
-      .deletedUploadedImages(this.creatorId, this.VideoId)
+      .deletedUploadedImages(imageId, creatorId)
       .subscribe((res: any) => {
         if (res) {
-          this.isAsyncCall = false;
+          this.imageDeleteSnackBar();
+          this.isAsyncDeleteImageCall = false;
+          this.expandImage(true);
           console.log(res, 'res of delete images');
         }
       });
@@ -730,7 +762,7 @@ export class HomePageComponent implements OnInit {
   deleteUploadedVideos() {
     this.isAsyncCall = true;
     this.authensService
-      .deletedUploadedVideos(this.creatorId, this.ImageId)
+      .deletedUploadedVideos(this.creatorId, this.VideoId)
       .subscribe((res: any) => {
         if (res) {
           this.imageDataArray = res;
@@ -789,5 +821,13 @@ export class HomePageComponent implements OnInit {
     }
 
     return new Blob(byteArrays, { type: contentType });
+  }
+
+  //-------------  Delete Image Snackbar  ---------------
+
+  imageDeleteSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`IMAGE DELETED SUCCESSFULY`, 'X', config);
   }
 }

@@ -6,7 +6,7 @@ import { MaterialModule } from 'projects/material/src/public-api';
   selector: 'app-news-feed',
   standalone: true,
   imports: [CommonModule, MaterialModule],
-  template: ` <p>news-feed works!</p> `,
+  template: ` <h2>News Feed</h2> `,
   styles: [],
 })
 export class NewsFeedComponent {}

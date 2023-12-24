@@ -254,7 +254,7 @@ export class AuthenticationService {
     );
   }
 
-  deletedUploadedImages(ImageId: string, creatorId: string) {
+  deletedUploadedImages(imageId: string, creatorId: string) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
@@ -264,9 +264,11 @@ export class AuthenticationService {
     };
 
     const body = {
-      ImageId: ImageId,
-      CreatorId: creatorId,
+      ImageId: imageId,
+      creatorId: creatorId,
     };
+
+    console.log(body, 'body of data');
 
     return this.http.post<any>(
       this.backendUrl + '/deleteFile/Image',
@@ -291,6 +293,49 @@ export class AuthenticationService {
     return this.http.post<any>(
       this.backendUrl + '/deleteFile/Video',
       body,
+      headers
+    );
+  }
+
+  updatePersonalInfo(
+    userId: string,
+    name: string,
+    location: string,
+    bio: string
+  ) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      userId,
+      name,
+      location,
+      bio,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + '/auth/updatePersonalInfo',
+      data,
+      headers
+    );
+  }
+
+  getPersonalInfo(userId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl + `/auth/getPersonalInfo?userId=${userId}`,
       headers
     );
   }
