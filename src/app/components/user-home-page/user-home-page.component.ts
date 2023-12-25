@@ -25,7 +25,7 @@ import { ActivatedRoute } from '@angular/router';
 
           <!-- Logout Button -->
           <div>
-            <button mat-icon-button [disabled]="true" (click)="logout()">
+            <button mat-icon-button (click)="logout()">
               <mat-icon style="color:white">logout</mat-icon>
             </button>
           </div>
@@ -105,7 +105,7 @@ import { ActivatedRoute } from '@angular/router';
         </div>
         <div class="width-read-more">
           <p>
-            {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
+            {{ bioShortened ? bio?.slice(0, 50) + '...' : bio }}
             <button
               style="color:#2aaa8a"
               *ngIf="showReadMore"
@@ -485,15 +485,12 @@ export class UserHomePageComponent {
   toggleComments(): void {
     this.showComments = !this.showComments; // Toggle comments visibility
   }
+  isAsyncCall = false;
   creatorId: any;
   username: any;
   bio: any;
   joined: any;
   location: any;
-  name = 'Sussan Albert';
-  // location = 'USA';
-  // joined = 'joined september 2023';
-  // bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
   bioShortened = true;
   showReadMore = false;
   coverImageUrl = 'assets/pictures/pic1.jpg';
@@ -520,22 +517,7 @@ export class UserHomePageComponent {
       this.creatorId = params.get('userId') || '';
       console.log('creator id', this.creatorId);
     });
-    this.location = localStorage.getItem('userLocation');
-    console.log('location', this.location);
-
-    this.username = localStorage.getItem('userName');
-    console.log('username', this.username);
-    this.bio = localStorage.getItem('userBio');
-    console.log('bio id', this.bio);
-    this.joined = localStorage.getItem('userCreated');
-    console.log('joined', this.joined);
-    if (this.bio && this.bio?.length > 50) {
-      this.showReadMore = true;
-    }
-    console.log(this.bio, 'bio');
-    if (this.bio.length > 50) {
-      this.showReadMore = true;
-    }
+    this.getPersonalInfo();
     this.fetchImages();
   }
 
@@ -614,6 +596,25 @@ export class UserHomePageComponent {
   }
 
   logout() {
-    console.log('loggedout');
+    this.authensService.logout();
+  }
+
+  // ----------------- Get Personal Info Against specific Id  -------------------
+  getPersonalInfo() {
+    this.isAsyncCall = true;
+    this.authensService.getPersonalInfo(this.creatorId).subscribe((res) => {
+      if (res && res.result) {
+        this.username = res.result.name;
+
+        this.location = res.result.location;
+        this.joined = res.result.createdAt;
+        this.bio = res.result.bio;
+        if (this.bio && this.bio?.length > 50) {
+          this.showReadMore = true;
+        }
+        console.log(this.bio, 'bio');
+        this.isAsyncCall = false;
+      }
+    });
   }
 }

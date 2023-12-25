@@ -132,7 +132,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
           </div>
           <div style="width:40%">
             <p>
-              {{ bioShortened ? bio.slice(0, 50) + '...' : bio }}
+              {{ bioShortened ? bio?.slice(0, 50) + '...' : bio }}
               <button
                 style="color:#2aaa8a"
                 *ngIf="showReadMore"
@@ -571,16 +571,10 @@ export class HomePageComponent implements OnInit {
       this.creatorId = params.get('userId') || '';
       console.log(this.creatorId);
     });
-    this.location = localStorage.getItem('userLocation');
-    this.username = localStorage.getItem('userName');
-    this.bio = localStorage.getItem('userBio');
-    this.joined = localStorage.getItem('userCreated');
-    if (this.bio && this.bio?.length > 50) {
-      this.showReadMore = true;
-    }
-    console.log(this.bio, 'bio');
+
     this.getUploadImages();
     this.getUploadVideos();
+    this.getPersonalInfo();
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -633,9 +627,8 @@ export class HomePageComponent implements OnInit {
       width: '400px',
       height: '510px',
     });
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.isConfirmed) {
-        console.log(result, 'resultofdialogdata');
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
         this.getPersonalInfo();
       }
     });
@@ -645,8 +638,15 @@ export class HomePageComponent implements OnInit {
   getPersonalInfo() {
     this.isAsyncCall = true;
     this.authensService.getPersonalInfo(this.creatorId).subscribe((res) => {
-      if (res) {
-        console.log(res, 'get personal info');
+      if (res && res.result) {
+        this.username = res.result.name;
+
+        this.location = res.result.location;
+        this.joined = res.result.createdAt;
+        this.bio = res.result.bio;
+        if (this.bio && this.bio?.length > 50) {
+          this.showReadMore = true;
+        }
         this.isAsyncCall = false;
       }
     });
