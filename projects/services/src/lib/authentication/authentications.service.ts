@@ -354,8 +354,23 @@ export class AuthenticationService {
       headers: new HttpHeaders().set('x-access-token', userToken || ''),
     };
 
-    return this.http.post<any>(
+    return this.http.get<any>(
       this.backendUrl + `/userEssentials/getProfile?id=${id}`,
+      headers
+    );
+  }
+
+  getCoverPicture(id: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl + `//userEssentials/getCover?id=${id}`,
       headers
     );
   }
