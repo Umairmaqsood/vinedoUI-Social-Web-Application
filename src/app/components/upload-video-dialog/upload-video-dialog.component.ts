@@ -13,7 +13,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
   template: `
     <mat-card
       style="background-color: #2d3436 !important;
-             color: white !important; display:block; margin:0px auto;border-radius: 0px;width:400px; height:500px"
+             color: white !important; display:block; margin:0px auto;border-radius: 0px;width:500px; height:500px"
     >
       <div style="display: flex;justify-content: flex-end;">
         <button mat-icon-button aria-label="close dialog" mat-dialog-close>
@@ -49,7 +49,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
           <video
             controls
             [src]="videoPreview"
-            style="width: 350px; height: 300px;"
+            style="width: 350px; height: 280px;"
           ></video>
           <mat-card-actions>
             <app-async-spinner-button

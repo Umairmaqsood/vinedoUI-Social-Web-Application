@@ -592,7 +592,7 @@ export class HomePageComponent implements OnInit {
       data: {
         item,
       },
-      width: '400px',
+      width: '500px',
       height: '500px',
     });
   }
@@ -604,7 +604,7 @@ export class HomePageComponent implements OnInit {
       data: {
         item,
       },
-      width: '400px',
+      width: '500px',
       height: '500px',
     });
   }

@@ -21,7 +21,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
   template: `
     <mat-card
       style=" background-color: #2d3436 !important;
-        color: white !important; display:block; margin:0px auto;border-radius: 0px;width:400px; height:500px"
+        color: white !important; display:block; margin:0px auto;border-radius: 0px;width:500px; height:500px"
     >
       <div style="display: flex;justify-content: flex-end;">
         <button mat-icon-button aria-label="close dialog" mat-dialog-close>
@@ -58,7 +58,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
           <img
             [src]="imagePreview"
             alt="Selected Image"
-            style="width: 350px; height: 300px;"
+            style="width: 350px; height: 280px;"
           />
           <mat-card-actions>
             <app-async-spinner-button
