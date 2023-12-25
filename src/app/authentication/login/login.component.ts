@@ -65,12 +65,7 @@ export interface LoginRequestData {
 
             <mat-label>Enter your email</mat-label>
 
-            <input
-              matInput
-              placeholder="dev@vinedo"
-              formControlName="email"
-              required
-            />
+            <input matInput formControlName="email" required />
             <mat-error *ngIf="loginForm.controls['email'].hasError('required')">
               Email is <strong>required</strong>
             </mat-error>

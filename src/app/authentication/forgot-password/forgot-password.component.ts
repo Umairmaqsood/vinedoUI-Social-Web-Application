@@ -51,13 +51,7 @@ import { AsyncSpinnerComponent } from 'src/app/components';
                 </svg>
               </mat-icon>
               <mat-label>Enter your email</mat-label>
-              <input
-                matInput
-                type="email"
-                formControlName="email"
-                placeholder="vinedo@example.com"
-                required
-              />
+              <input matInput type="email" formControlName="email" required />
             </mat-form-field>
             <mat-card-actions>
               <button type="submit" mat-raised-button class="mat-btn">
@@ -78,13 +72,7 @@ import { AsyncSpinnerComponent } from 'src/app/components';
           >
             <mat-form-field appearance="outline">
               <mat-label>Enter OTP</mat-label>
-              <input
-                matInput
-                type="text"
-                formControlName="otp"
-                placeholder="Enter OTP"
-                required
-              />
+              <input matInput type="text" formControlName="otp" required />
             </mat-form-field>
             <mat-card-actions>
               <button type="submit" mat-raised-button class="mat-btn">
@@ -124,7 +112,6 @@ import { AsyncSpinnerComponent } from 'src/app/components';
                 matInput
                 type="password"
                 formControlName="password"
-                placeholder="Enter new password"
                 required
                 [type]="hide1 ? 'password' : 'text'"
               />
@@ -155,12 +142,11 @@ import { AsyncSpinnerComponent } from 'src/app/components';
                   />
                 </svg>
               </mat-icon>
-              <mat-label>Confirm password</mat-label>
+              <mat-label>Confirm Password</mat-label>
               <input
                 matInput
                 type="password"
                 formControlName="confirmPassword"
-                placeholder="Confirm password"
                 required
                 [type]="hide2 ? 'confirmPassword' : 'text'"
               />

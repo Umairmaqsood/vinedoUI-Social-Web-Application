@@ -137,12 +137,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           <!-- Email -->
           <mat-form-field appearance="outline">
             <mat-label>Enter your email</mat-label>
-            <input
-              matInput
-              placeholder="pat@example.com"
-              formControlName="email"
-              required
-            />
+            <input matInput formControlName="email" required />
             <mat-error *ngIf="form['email'].errors?.['required']"
               >Email is <strong>required</strong></mat-error
             >
@@ -175,10 +170,9 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
 
           <!-- Phone Number -->
           <mat-form-field appearance="outline">
-            <mat-label>Phone</mat-label>
+            <mat-label>Phone Number</mat-label>
             <input
               matInput
-              placeholder="Phone number"
               formControlName="phoneNumber"
               required
               maxlength="10"
@@ -354,10 +348,12 @@ export class SignUpComponent {
       (error) => {
         if (error.status === 409) {
           this.errorSnackbarRegistered();
-        } else {
-          console.error(error);
+        } else if (error.status === 400) {
           this.errorSnackbar();
+        } else {
+          this.error();
         }
+
         this.isAsyncCall = false;
       }
     );
@@ -383,7 +379,7 @@ export class SignUpComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(
-      `USER ACCOUNT CREATED SUCCESSFULLY.', 'SUCCESS`,
+      `USER ACCOUNT CREATED SUCCESSFULLY., SUCCESS`,
       'X',
       config
     );
@@ -399,9 +395,14 @@ export class SignUpComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(
-      `ERROR OCCURED DURING SIGNUP. PLEASE TRY AGAIN, ERROR.`,
+      `PLEASE COMPLETE INFORMATION. FILL ALL THE FIELDS`,
       'X',
       config
     );
+  }
+  error(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`AN ERROR OCCURED. PLEASE TRY AGAIN LATER`, 'X', config);
   }
 }
