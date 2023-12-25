@@ -20,22 +20,10 @@ export class AuthenticationService {
   private currentUserSubject = new BehaviorSubject<any>(null);
   public currentUser = this.currentUserSubject.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private router: Router,
-    private publicHttp: HttpClient, // Might not be needed, considering it's re-assigned below
-    private handler: HttpBackend // Might not be needed, considering it's re-assigned below
-  ) {
+  constructor(private http: HttpClient, private router: Router) {
     // Retrieving stored user from localStorage and initializing the Behavior Subject
     const storedUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
     this.currentUserSubject.next(storedUser);
-
-    // Re-initializing the publicHttp and currentUserSubject which may not be necessary due to previous initialization
-    // this.publicHttp = new HttpClient(this.handler);
-    // this.currentUserSubject = new BehaviorSubject<any>(
-    //   JSON.parse(localStorage.getItem('currentUser') as string)
-    // );
-    // this.currentUser = this.currentUserSubject?.asObservable();
   }
 
   // Getters for current user value and data
@@ -88,50 +76,6 @@ export class AuthenticationService {
       })
     );
   }
-
-  // login(data: LoginRequestData): Observable<void> {
-  //   return this.http.post<any>(this.backendUrl + '/auth/login', data);
-  //   // .pipe(
-  //   //   map((response) => {
-  //   //     if (response && response.result) {
-  //   //       AuthenticationService.authToken = response.result;
-  //   //       AuthenticationService.authClaims = this.decodeTokenClaims(
-  //   //         response.result
-  //   //       );
-  //   //     }
-  //   //   })
-  //   // );
-  // }
-
-  private decodeTokenClaims(token: string): any {
-    const base64Url = token.split('.')[1];
-    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-    const jsonPayload = decodeURIComponent(
-      atob(base64)
-        .split('')
-        .map(function (c) {
-          return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        })
-        .join('')
-    );
-    return JSON.parse(jsonPayload);
-  }
-
-  static getAuthClaims(): any | null {
-    return AuthenticationService.authClaims;
-  }
-
-  static getUserId(): string | null {
-    const claims = AuthenticationService.authClaims;
-    console.log(claims._id);
-    return claims ? claims._id : null;
-  }
-
-  // logout(): void {
-  //   AuthenticationService.authToken = null;
-  //   AuthenticationService.authClaims = null;
-  //   localStorage.removeItem('userToken');
-  // }
 
   signup(data: any) {
     return this.http.post<any>(this.backendUrl + '/auth/register', data);
