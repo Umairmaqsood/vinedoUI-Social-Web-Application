@@ -614,7 +614,7 @@ export class HomePageComponent implements OnInit {
   openNotifications() {
     const dialog = this.dialog.open(NotificationsDialogComponent, {
       width: '700px',
-      height: '300px',
+      height: '400px',
     });
   }
 
@@ -631,7 +631,7 @@ export class HomePageComponent implements OnInit {
         },
       },
       width: '400px',
-      height: '500px',
+      height: '510px',
     });
     dialogRef.afterClosed().subscribe((result) => {
       if (result?.isConfirmed) {

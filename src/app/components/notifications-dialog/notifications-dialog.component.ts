@@ -9,7 +9,7 @@ import { MaterialModule } from 'projects/material/src/public-api';
   template: `
     <mat-card
       style="background-color: #2d3436 !important; color: white !important; width: 700px,
-      height: 300px;"
+      height: 400px;"
     >
       <div style="padding: 20px;">
         <div style="display: flex; justify-content: flex-end;">

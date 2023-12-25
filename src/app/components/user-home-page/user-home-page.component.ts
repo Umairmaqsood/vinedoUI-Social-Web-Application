@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { PaypalDialogComponent } from '../paypal-dialog/paypal-dialog.component';
 import { CommonModule } from '@angular/common';
-import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { ActivatedRoute } from '@angular/router';
@@ -144,6 +143,7 @@ import { ActivatedRoute } from '@angular/router';
               mat-raised-button
               (click)="paypalDialog()"
             >
+              <mat-icon>lock</mat-icon>
               Subscribe to see Creator Videos
             </button>
           </mat-tab>
@@ -229,6 +229,7 @@ import { ActivatedRoute } from '@angular/router';
               mat-raised-button
               (click)="paypalDialog()"
             >
+              <mat-icon>lock</mat-icon>
               Subscribe to see Creator Pictures
             </button>
           </mat-tab>
@@ -542,25 +543,6 @@ export class UserHomePageComponent {
     const dialog = this.dialog.open(PaypalDialogComponent, {
       width: '410px',
       height: '420px',
-    });
-  }
-
-  editProfileDialog(item: any) {
-    const dialogRef = this.dialog.open(EditProfileDialogComponent, {
-      data: {
-        item: {
-          name: this.name,
-          location: this.location,
-          bio: this.bio,
-        },
-      },
-      width: '400px',
-      height: '500px',
-    });
-    dialogRef.componentInstance.dataUpdated.subscribe((updatedData: any) => {
-      this.name = updatedData.name;
-      this.location = updatedData.location;
-      this.bio = updatedData.bio;
     });
   }
 

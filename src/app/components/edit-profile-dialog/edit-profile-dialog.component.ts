@@ -19,17 +19,15 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
   template: `
     <mat-card
       style=" background-color: #2d3436 !important;
-        color: white !important; display:block; margin:0px auto;border-radius: 0px;width:400px; height:500px"
+        color: white !important; display:block; margin:0px auto;border-radius: 0px;width:400px; height:510px"
     >
-      <mat-card-header> </mat-card-header>
-
       <div style="display: flex;justify-content: flex-end;">
         <button mat-icon-button aria-label="close dialog" mat-dialog-close>
           <mat-icon>close</mat-icon>
         </button>
       </div>
-
-      <mat-card-content style="padding:20px">
+      <h2 style="padding:0px 20px">Edit Profile</h2>
+      <mat-card-content style="padding:0px 20px">
         <form [formGroup]="editDataForm">
           <mat-form-field appearance="outline" class="w-8" class="full">
             <mat-label>Name</mat-label>
@@ -65,6 +63,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
         <app-async-spinner-button
           [isAsyncCall]="isAsyncCall"
           (click)="saveData()"
+          style="display:block; margin:0px auto"
           >Save</app-async-spinner-button
         >
       </mat-card-actions>
