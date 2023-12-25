@@ -542,7 +542,7 @@ export class HomePageComponent implements OnInit {
 
   // --------------- Profile and Cover Image URLs  --------------------
 
-  coverImageUrl = 'assets/pictures/pic1.jpg';
+  coverImageUrl: string = 'assets/pictures/pic1.jpg';
   profileImageUrl: string = 'assets/pictures/pic2.jpg';
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
@@ -575,6 +575,7 @@ export class HomePageComponent implements OnInit {
     this.getUploadVideos();
     this.getPersonalInfo();
     this.getProfilePicture();
+    this.getCoverPicture();
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -727,6 +728,24 @@ export class HomePageComponent implements OnInit {
       },
       (error) => {
         console.error('Error fetching profile image', error);
+      }
+    );
+  }
+
+  // --------------- Get Cover Image --------------------
+
+  getCoverPicture() {
+    this.authensService.getCoverPicture(this.creatorId).subscribe(
+      (res: any) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(res); // Read the blob response as data URL
+
+        reader.onloadend = () => {
+          this.coverImageUrl = reader.result as string;
+        };
+      },
+      (error) => {
+        console.error('Error fetching cover image', error);
       }
     );
   }

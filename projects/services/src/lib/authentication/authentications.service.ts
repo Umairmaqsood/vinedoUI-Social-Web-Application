@@ -370,7 +370,7 @@ export class AuthenticationService {
     };
 
     return this.http.get<any>(
-      this.backendUrl + `//userEssentials/getCover?id=${id}`,
+      this.backendUrl + `/userEssentials/getCover?id=${id}`,
       headers
     );
   }
