@@ -57,6 +57,7 @@ export class AuthenticationService {
           localStorage.setItem('userName', decodedToken.name || '');
           localStorage.setItem('userBio', decodedToken.bio || '');
           localStorage.setItem('userLocation', decodedToken.location || '');
+
           localStorage.setItem(
             'isContentCreator',
             String(decodedToken.isContentCreator || false)

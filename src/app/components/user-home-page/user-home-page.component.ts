@@ -6,6 +6,8 @@ import { CommonModule } from '@angular/common';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient, HttpResponse } from '@angular/common/http';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-user-home-page',
@@ -40,14 +42,7 @@ import { ActivatedRoute } from '@angular/router';
       <img
         [src]="coverImageUrl"
         alt="Profile Cover Image"
-        (click)="onCoverImageClick()"
         style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
-      />
-      <input
-        type="file"
-        style="display: none;"
-        (change)="onCoverImageSelected($event)"
-        #coverInput
       />
     </div>
 
@@ -57,17 +52,11 @@ import { ActivatedRoute } from '@angular/router';
       <div class="flex" style="justify-content:space-between">
         <div class="profile-info">
           <!-- Profile Picture -->
-          <div class="profile-picture" (click)="onProfileImageClick()">
+          <div class="profile-picture">
             <img
               [src]="profileImageUrl"
               alt="Profile-Picture"
               style="cursor:pointer"
-            />
-            <input
-              type="file"
-              style="display: none;"
-              (change)="onProfileImageSelected($event)"
-              #profileInput
             />
           </div>
         </div>
@@ -100,7 +89,7 @@ import { ActivatedRoute } from '@angular/router';
           </div>
           <div class="flex gap-10">
             <mat-icon>date_range</mat-icon>
-            <label class="m-t-5">{{ joined }}</label>
+            <label class="m-t-5">joined: {{ joined }}</label>
           </div>
         </div>
         <div class="width-read-more">
@@ -493,19 +482,23 @@ export class UserHomePageComponent {
   location: any;
   bioShortened = true;
   showReadMore = false;
-  coverImageUrl = 'assets/pictures/coverImage.jpg';
-  profileImageUrl: string = 'assets/pictures/profilephoto.jpg';
+
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
   tiktokUrl = 'assets/pictures/tiktok.png';
 
+  coverImageUrl: string | ArrayBuffer | null = 'assets/pictures/coverImage.jpg';
+  profileImageUrl: string | ArrayBuffer | null =
+    'assets/pictures/profilephoto.jpg';
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
   constructor(
     private dialog: MatDialog,
     private authensService: AuthenticationService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private http: HttpClient,
+    private snackbar: MatSnackBar
   ) {}
 
   toggleBio() {
@@ -518,6 +511,8 @@ export class UserHomePageComponent {
       console.log('creator id', this.creatorId);
     });
     this.getPersonalInfo();
+    this.getCoverPicture();
+    this.getProfilePicture();
     this.fetchImages();
   }
 
@@ -528,41 +523,16 @@ export class UserHomePageComponent {
     });
   }
 
-  destroySession() {
+  logout() {
     this.authensService.logout();
+    this.logoutSnackbar();
+  }
+  logoutSnackbar(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`LOGGED OUT SUCCESSFULLY`, 'X', config);
   }
 
-  onCoverImageClick() {
-    if (this.coverInput) {
-      this.coverInput.nativeElement.click();
-    }
-  }
-
-  onProfileImageClick() {
-    if (this.profileInput) {
-      this.profileInput.nativeElement.click();
-    }
-  }
-
-  onCoverImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      // Handle uploading the cover image file (you may need to implement an upload service)
-      // For demo purposes, update the coverImageUrl with the uploaded file
-      this.coverImageUrl = URL.createObjectURL(file);
-    }
-  }
-
-  onProfileImageSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      const file = input.files[0];
-      // Handle uploading the profile image file (you may need to implement an upload service)
-      // For demo purposes, update the profileImageUrl with the uploaded file
-      this.profileImageUrl = URL.createObjectURL(file);
-    }
-  }
   videos = [
     {
       url: 'https://youtu.be/HFHl_tXSyaE?list=RDHFHl_tXSyaE', // Sample video URL
@@ -595,10 +565,6 @@ export class UserHomePageComponent {
     this.expandedVideo = null;
   }
 
-  logout() {
-    this.authensService.logout();
-  }
-
   // ----------------- Get Personal Info Against specific Id  -------------------
   getPersonalInfo() {
     this.isAsyncCall = true;
@@ -607,50 +573,96 @@ export class UserHomePageComponent {
         this.username = res.result.name;
 
         this.location = res.result.location;
-        this.joined = res.result.createdAt;
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        const date = new Date(res.result.createdAt);
+        const formattedDate =
+          months[date.getMonth()] +
+          ' ' +
+          date.getDate() +
+          ' ' +
+          date.getFullYear();
+
+        this.joined = formattedDate;
         this.bio = res.result.bio;
         if (this.bio && this.bio?.length > 50) {
           this.showReadMore = true;
         }
-        console.log(this.bio, 'bio');
         this.isAsyncCall = false;
       }
     });
   }
-
   // --------------- Get Profile Image --------------------
 
   getProfilePicture() {
-    this.authensService.getProfilePicture(this.creatorId).subscribe(
-      (res: any) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(res); // Read the blob response as data URL
+    const creatorId = this.creatorId; // Replace with your actual creator ID
 
-        reader.onloadend = () => {
-          this.profileImageUrl = reader.result as string;
-        };
-      },
-      (error) => {
-        console.error('Error fetching profile image', error);
-      }
-    );
+    this.http
+      .get('http://localhost:3000/v1/vidmo/userEssentials/getProfile', {
+        params: { id: creatorId },
+        responseType: 'arraybuffer', // Set the responseType to 'arraybuffer' to handle streamed data
+        observe: 'response', // Use observe: 'response' to get the full response
+      })
+      .subscribe(
+        (res: HttpResponse<any>) => {
+          console.log('Successful response:', res);
+
+          // Convert ArrayBuffer to base64 for image display
+          const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            this.profileImageUrl = reader.result as string;
+          };
+
+          reader.readAsDataURL(blob);
+        },
+        (error) => {
+          console.error('Error fetching profile image:', error);
+        }
+      );
   }
 
   // --------------- Get Cover Image --------------------
 
   getCoverPicture() {
-    this.authensService.getCoverPicture(this.creatorId).subscribe(
-      (res: any) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(res); // Read the blob response as data URL
+    const creatorId = this.creatorId; // Replace with your actual creator ID
 
-        reader.onloadend = () => {
-          this.coverImageUrl = reader.result as string;
-        };
-      },
-      (error) => {
-        console.error('Error fetching cover image', error);
-      }
-    );
+    this.http
+      .get('http://localhost:3000/v1/vidmo/userEssentials/getCover', {
+        params: { id: creatorId },
+        responseType: 'arraybuffer', // Set the responseType to 'arraybuffer' to handle streamed data
+        observe: 'response', // Use observe: 'response' to get the full response
+      })
+      .subscribe(
+        (res: HttpResponse<any>) => {
+          console.log('Successful response:', res);
+
+          // Convert ArrayBuffer to base64 for image display
+          const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            this.coverImageUrl = reader.result as string;
+          };
+
+          reader.readAsDataURL(blob);
+        },
+        (error) => {
+          console.error('Error fetching cover image:', error);
+        }
+      );
   }
 }

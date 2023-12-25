@@ -1,4 +1,10 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { CommonModule } from '@angular/common';
@@ -12,6 +18,7 @@ import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
+import { HttpClient, HttpResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-home-page',
@@ -127,7 +134,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
             </div>
             <div class="flex gap-10">
               <mat-icon>date_range</mat-icon>
-              <label class="m-t-5">joined {{ joined }}</label>
+              <label class="m-t-5">joined: {{ joined }}</label>
             </div>
           </div>
           <div style="width:40%">
@@ -364,7 +371,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
 
       .image-container img {
         width: 100%;
-        height: 90%;
+        height: 70%;
         display: block;
       }
 
@@ -542,8 +549,9 @@ export class HomePageComponent implements OnInit {
 
   // --------------- Profile and Cover Image URLs  --------------------
 
-  coverImageUrl: string = 'assets/pictures/coverImage.jpg';
-  profileImageUrl: string = 'assets/pictures/profilephoto.jpg';
+  coverImageUrl: string | ArrayBuffer | null = 'assets/pictures/coverImage.jpg';
+  profileImageUrl: string | ArrayBuffer | null =
+    'assets/pictures/profilephoto.jpg';
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
@@ -557,7 +565,9 @@ export class HomePageComponent implements OnInit {
     private dialog: MatDialog,
     private route: ActivatedRoute,
     private authensService: AuthenticationService,
-    private snackbar: MatSnackBar
+    private snackbar: MatSnackBar,
+    private cdr: ChangeDetectorRef,
+    private http: HttpClient
   ) {}
 
   toggleBio() {
@@ -568,7 +578,6 @@ export class HomePageComponent implements OnInit {
     // Retrieve the userId and location from the URL query parameters
     this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
-      console.log(this.creatorId);
     });
 
     this.getUploadImages();
@@ -643,7 +652,29 @@ export class HomePageComponent implements OnInit {
         this.username = res.result.name;
 
         this.location = res.result.location;
-        this.joined = res.result.createdAt;
+        const months = [
+          'Jan',
+          'Feb',
+          'Mar',
+          'Apr',
+          'May',
+          'Jun',
+          'Jul',
+          'Aug',
+          'Sep',
+          'Oct',
+          'Nov',
+          'Dec',
+        ];
+        const date = new Date(res.result.createdAt);
+        const formattedDate =
+          months[date.getMonth()] +
+          ' ' +
+          date.getDate() +
+          ' ' +
+          date.getFullYear();
+
+        this.joined = formattedDate;
         this.bio = res.result.bio;
         if (this.bio && this.bio?.length > 50) {
           this.showReadMore = true;
@@ -717,39 +748,63 @@ export class HomePageComponent implements OnInit {
   // --------------- Get Profile Image --------------------
 
   getProfilePicture() {
-    this.authensService.getProfilePicture(this.creatorId).subscribe(
-      (res: Blob) => {
-        const reader = new FileReader();
+    const creatorId = this.creatorId; // Replace with your actual creator ID
 
-        reader.onload = () => {
-          // Convert blob to data URL
-          this.profileImageUrl = reader.result as string;
-        };
+    this.http
+      .get('http://localhost:3000/v1/vidmo/userEssentials/getProfile', {
+        params: { id: creatorId },
+        responseType: 'arraybuffer', // Set the responseType to 'arraybuffer' to handle streamed data
+        observe: 'response', // Use observe: 'response' to get the full response
+      })
+      .subscribe(
+        (res: HttpResponse<any>) => {
+          console.log('Successful response:', res);
 
-        reader.readAsDataURL(res); // Read the blob response as data URL
-      },
-      (error) => {
-        console.error('Error fetching profile image', error);
-      }
-    );
+          // Convert ArrayBuffer to base64 for image display
+          const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            this.profileImageUrl = reader.result as string;
+          };
+
+          reader.readAsDataURL(blob);
+        },
+        (error) => {
+          console.error('Error fetching profile image:', error);
+        }
+      );
   }
 
   // --------------- Get Cover Image --------------------
 
   getCoverPicture() {
-    this.authensService.getCoverPicture(this.creatorId).subscribe(
-      (res: any) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(res); // Read the blob response as data URL
+    const creatorId = this.creatorId; // Replace with your actual creator ID
 
-        reader.onloadend = () => {
-          this.coverImageUrl = reader.result as string;
-        };
-      },
-      (error) => {
-        console.error('Error fetching cover image', error);
-      }
-    );
+    this.http
+      .get('http://localhost:3000/v1/vidmo/userEssentials/getCover', {
+        params: { id: creatorId },
+        responseType: 'arraybuffer', // Set the responseType to 'arraybuffer' to handle streamed data
+        observe: 'response', // Use observe: 'response' to get the full response
+      })
+      .subscribe(
+        (res: HttpResponse<any>) => {
+          console.log('Successful response:', res);
+
+          // Convert ArrayBuffer to base64 for image display
+          const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            this.coverImageUrl = reader.result as string;
+          };
+
+          reader.readAsDataURL(blob);
+        },
+        (error) => {
+          console.error('Error fetching cover image:', error);
+        }
+      );
   }
 
   // --------------- Get uploaded images --------------------
