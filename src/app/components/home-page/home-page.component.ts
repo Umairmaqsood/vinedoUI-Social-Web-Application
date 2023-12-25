@@ -520,7 +520,6 @@ export class HomePageComponent implements OnInit {
   videoDataArray: any[] = [];
   expandedImage: any = null;
   expandedVideo: any = null;
-
   ImageId: any;
   VideoId: any;
   isAsyncCall = false;
@@ -544,7 +543,7 @@ export class HomePageComponent implements OnInit {
   // --------------- Profile and Cover Image URLs  --------------------
 
   coverImageUrl = 'assets/pictures/pic1.jpg';
-  profileImageUrl = 'assets/pictures/pic1.jpg';
+  profileImageUrl: string = 'assets/pictures/pic2.jpg';
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
@@ -575,6 +574,7 @@ export class HomePageComponent implements OnInit {
     this.getUploadImages();
     this.getUploadVideos();
     this.getPersonalInfo();
+    this.getProfilePicture();
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -653,7 +653,6 @@ export class HomePageComponent implements OnInit {
   }
 
   // --------------- Cover Image Click --------------------
-
   onCoverImageClick() {
     if (this.coverInput) {
       this.coverInput.nativeElement.click();
@@ -664,9 +663,22 @@ export class HomePageComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      // Handle uploading the cover image file (you may need to implement an upload service)
-      // For demo purposes, update the coverImageUrl with the uploaded file
-      this.coverImageUrl = URL.createObjectURL(file);
+      const userId = this.creatorId; // Replace with your actual user ID
+
+      this.authensService.uploadCreatorCoverPicture(userId, file).subscribe(
+        (res) => {
+          if (res) {
+            this.coverPictureSnackBar();
+            this.coverImageUrl = URL.createObjectURL(file);
+          }
+        },
+        (error) => {
+          console.error('Error uploading image', error);
+          this.coverPictureSnackBarError();
+        }
+      );
+
+      // Rest of your code to handle updating the UI with the selected image
     }
   }
 
@@ -682,10 +694,41 @@ export class HomePageComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const file = input.files[0];
-      // Handle uploading the profile image file (you may need to implement an upload service)
-      // For demo purposes, update the profileImageUrl with the uploaded file
-      this.profileImageUrl = URL.createObjectURL(file);
+      const userId = this.creatorId; // Replace with your actual user ID
+
+      this.authensService.uploadCreatorProfilePicture(userId, file).subscribe(
+        (res) => {
+          if (res) {
+            this.profilePictureSnackBar();
+            this.profileImageUrl = URL.createObjectURL(file);
+          }
+        },
+        (error) => {
+          console.error('Error uploading image', error);
+          this.profilePictureSnackBarError();
+        }
+      );
+
+      // Rest of your code to handle updating the UI with the selected image
     }
+  }
+
+  // --------------- Get Profile Image --------------------
+
+  getProfilePicture() {
+    this.authensService.getProfilePicture(this.creatorId).subscribe(
+      (res: any) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(res); // Read the blob response as data URL
+
+        reader.onloadend = () => {
+          this.profileImageUrl = reader.result as string;
+        };
+      },
+      (error) => {
+        console.error('Error fetching profile image', error);
+      }
+    );
   }
 
   // --------------- Get uploaded images --------------------
@@ -713,7 +756,6 @@ export class HomePageComponent implements OnInit {
 
         this.imageDataArray = result.result;
         this.isImageAsyncCall = false;
-        console.log(result, 'res of images');
       });
   }
 
@@ -829,5 +871,28 @@ export class HomePageComponent implements OnInit {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(`IMAGE DELETED SUCCESSFULY`, 'X', config);
+  }
+
+  //-------------  Profile Image Snackbar  ---------------
+
+  profilePictureSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`PROFILE PICTURE UPLOADED SUCCESSFULY`, 'X', config);
+  }
+  coverPictureSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`COVER PHOTO UPLOADED SUCCESSFULY`, 'X', config);
+  }
+  profilePictureSnackBarError() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`ERROR IN UPLOADING FILE`, 'X', config);
+  }
+  coverPictureSnackBarError() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`ERROR IN UPLOADING FILE`, 'X', config);
   }
 }

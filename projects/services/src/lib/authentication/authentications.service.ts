@@ -305,4 +305,58 @@ export class AuthenticationService {
       headers
     );
   }
+
+  uploadCreatorProfilePicture(userId: string, file: File) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const formData = new FormData();
+    formData.append('id', userId);
+    formData.append('Avatar', file);
+
+    return this.http.post<any>(
+      this.backendUrl + '/uploadFile/Avatar',
+      formData,
+      headers
+    );
+  }
+  uploadCreatorCoverPicture(userId: string, file: File) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const formData = new FormData();
+    formData.append('id', userId);
+    formData.append('Avatar', file);
+
+    return this.http.post<any>(
+      this.backendUrl + '/userEssentials/getCover',
+      formData,
+      headers
+    );
+  }
+
+  getProfilePicture(id: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + `/userEssentials/getProfile?id=${id}`,
+      headers
+    );
+  }
 }
