@@ -6,15 +6,33 @@ import { CommonModule } from '@angular/common';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { SearchBarComponent } from '../search-bar/search-bar.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-user-home-page',
   standalone: true,
   imports: [MaterialModule, CommonModule, SearchBarComponent],
   template: `
-    <!----------------------- Search Bar --------------->
+    <!----------------------- Nav Bar --------------->
 
-    <app-search-bar></app-search-bar>
+    <div class="container">
+      <mat-toolbar color="primary">
+        <mat-toolbar-row>
+          <!-- Logo -->
+          <div fxHide.lt-sm fxShow.gt-sm>
+            <img src="assets/pictures/vinedo.png" alt="Logo" height="40px" />
+          </div>
+          <div fxHide.lt-sm fxShow.gt-sm class="spacer"></div>
+
+          <!-- Logout Button -->
+          <div>
+            <button mat-icon-button [disabled]="true" (click)="logout()">
+              <mat-icon style="color:white">logout</mat-icon>
+            </button>
+          </div>
+        </mat-toolbar-row>
+      </mat-toolbar>
+    </div>
 
     <!----------------------- Cover Image --------------->
 
@@ -61,7 +79,9 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           <button class="mat-button" mat-raised-button (click)="paypalDialog()">
             Subscribe $24,99 per month
           </button>
-          <button mat-raised-button class="mat-button">Request Content</button>
+          <button mat-raised-button class="mat-button" [disabled]="true">
+            Request Content
+          </button>
         </div>
       </div>
 
@@ -69,10 +89,10 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
 
       <div class="m-b-10">
         <div class="flex gap-20">
-          <h2>{{ name }}</h2>
-          <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
+          <h2>{{ username }}</h2>
+          <!-- <mat-icon (click)="editProfileDialog('')" class="m-t-20 cursor"
             >edit</mat-icon
-          >
+          > -->
         </div>
         <div class="flex gap-20">
           <div class="flex gap-10">
@@ -93,7 +113,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
               mat-button
               (click)="toggleBio()"
             >
-              {{ bioShortened ? 'Read More' : 'Read Less' }}
+              {{ bioShortened ? 'More Info' : 'Collapse Info' }}
             </button>
           </p>
         </div>
@@ -598,10 +618,15 @@ export class UserHomePageComponent {
   toggleComments(): void {
     this.showComments = !this.showComments; // Toggle comments visibility
   }
+  creatorId: any;
+  username: any;
+  bio: any;
+  joined: any;
+  location: any;
   name = 'Sussan Albert';
-  location = 'USA';
-  joined = 'joined september 2023';
-  bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
+  // location = 'USA';
+  // joined = 'joined september 2023';
+  // bio = `Im a music artist, passionate about crafting soulful melodies that resonate with the heart. My music tells my story, taking you on a sonic journey through emotions and experiences. You can find me either performing live on stage or in the studio, where I bring my creative visions to life through sound.`;
   bioShortened = true;
   showReadMore = false;
   coverImageUrl = 'assets/pictures/pic1.jpg';
@@ -615,7 +640,8 @@ export class UserHomePageComponent {
 
   constructor(
     private dialog: MatDialog,
-    private authensService: AuthenticationService
+    private authensService: AuthenticationService,
+    private route: ActivatedRoute
   ) {}
 
   toggleBio() {
@@ -623,6 +649,23 @@ export class UserHomePageComponent {
   }
 
   ngOnInit() {
+    this.route.paramMap.subscribe((params: any) => {
+      this.creatorId = params.get('userId') || '';
+      console.log('creator id', this.creatorId);
+    });
+    this.location = localStorage.getItem('userLocation');
+    console.log('location', this.location);
+
+    this.username = localStorage.getItem('userName');
+    console.log('username', this.username);
+    this.bio = localStorage.getItem('userBio');
+    console.log('bio id', this.bio);
+    this.joined = localStorage.getItem('userCreated');
+    console.log('joined', this.joined);
+    if (this.bio && this.bio?.length > 50) {
+      this.showReadMore = true;
+    }
+    console.log(this.bio, 'bio');
     if (this.bio.length > 50) {
       this.showReadMore = true;
     }
@@ -720,5 +763,9 @@ export class UserHomePageComponent {
 
   closeExpandedVideo(): void {
     this.expandedVideo = null;
+  }
+
+  logout() {
+    console.log('loggedout');
   }
 }

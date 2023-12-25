@@ -169,6 +169,11 @@ mat-toolbar {
       cursor: pointer;
       width: 70% !important;}
 
+            .mdc-text-field--filled:not(.mdc-text-field--disabled) {
+              background-color: white;
+              border-radius: 10px !important;
+            }
+
 
 /* .ngx-toastr.custom-toast {
   background-color: #2aaa8a;

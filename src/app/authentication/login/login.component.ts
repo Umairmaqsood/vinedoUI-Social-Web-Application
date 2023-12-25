@@ -219,7 +219,7 @@ export class LoginComponent implements OnInit {
           this.showSnackbar();
           this.isAsyncCall = false;
         } else if (res.status === 200 && isContentCreator === 'false') {
-          this.router.navigate(['/user-home-page', userId]); // Navigating with the user ID as a parameter
+          this.router.navigate(['/news-feed', userId]); // Navigating with the user ID as a parameter
           this.showSnackbar();
           this.isAsyncCall = false;
         }

@@ -25,11 +25,11 @@ export const AUTH_ROUTE: Route[] = [
   { path: 'home-page/:userId', component: HomePageComponent },
 
   {
-    path: 'user-home-page/:userId',
+    path: 'user-home-page/:userId', // Include userId in the user-home-page route
     component: UserHomePageComponent,
   },
   {
-    path: 'news-feed',
+    path: 'news-feed/:userId',
     component: NewsFeedComponent,
   },
 ];

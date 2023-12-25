@@ -53,7 +53,7 @@ export class AuthenticationService {
           // Decode the received token
           const decodedToken: any = jwtDecode(loginResponse.userToken);
 
-          console.log(decodedToken, 'decodedtoken');
+          console.log('decodedtoken', decodedToken);
 
           // Extract and store specific data from the token in localStorage
           localStorage.setItem('userEmail', decodedToken.email || '');
@@ -336,6 +336,28 @@ export class AuthenticationService {
 
     return this.http.get<any>(
       this.backendUrl + `/auth/getPersonalInfo?userId=${userId}`,
+      headers
+    );
+  }
+
+  searchCreatorInfo(name: string, page: number, pageSize: number) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      name,
+      page,
+      pageSize,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + `/subscription/SearchCreator`,
+      data,
       headers
     );
   }

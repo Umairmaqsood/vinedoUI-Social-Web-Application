@@ -47,10 +47,17 @@ for yourself."
       </div> -->
 
       <mat-card-actions>
-        <button mat-raised-button class="mat-button" color="primary">
-          Pay with <b><i>PayPal</i></b>
-        </button></mat-card-actions
-      >
+        <a
+          class="mat-button"
+          href="https://www.paypal.com"
+          style="text-decoration:none"
+          target="_blank"
+        >
+          <button mat-raised-button color="primary">
+            Pay with <b><i>PayPal</i></b>
+          </button>
+        </a>
+      </mat-card-actions>
 
       <!-- <button
         mat-raised-button

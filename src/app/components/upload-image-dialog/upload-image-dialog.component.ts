@@ -58,7 +58,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
           <img
             [src]="imagePreview"
             alt="Selected Image"
-            style="max-width: 350px; max-height: 300px;"
+            style="width: 350px; height: 300px;"
           />
           <mat-card-actions>
             <app-async-spinner-button
