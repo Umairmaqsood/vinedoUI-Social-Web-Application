@@ -339,7 +339,7 @@ export class AuthenticationService {
     formData.append('Avatar', file);
 
     return this.http.post<any>(
-      this.backendUrl + '/userEssentials/getCover',
+      this.backendUrl + '/uploadFile/Cover',
       formData,
       headers
     );
