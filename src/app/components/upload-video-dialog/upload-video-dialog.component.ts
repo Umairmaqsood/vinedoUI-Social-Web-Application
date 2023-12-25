@@ -49,7 +49,7 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
           <video
             controls
             [src]="videoPreview"
-            style="width: 380px; height: 280px;"
+            style="width: 380px; height: 250px;"
           ></video>
           <mat-card-actions>
             <app-async-spinner-button
