@@ -292,7 +292,8 @@ import { ActivatedRoute } from '@angular/router';
         padding: 10px;
         display: block;
         margin: 0px auto;
-        margin-top: 40px;
+        margin-top: 20px;
+        margin-bottom: 20px;
       }
       .image-grid {
         display: flex;
