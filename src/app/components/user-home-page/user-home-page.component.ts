@@ -493,8 +493,8 @@ export class UserHomePageComponent {
   location: any;
   bioShortened = true;
   showReadMore = false;
-  coverImageUrl = 'assets/pictures/pic1.jpg';
-  profileImageUrl = 'assets/pictures/pic1.jpg';
+  coverImageUrl = 'assets/pictures/coverImage.jpg';
+  profileImageUrl: string = 'assets/pictures/profilephoto.jpg';
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
   tiktokUrl = 'assets/pictures/tiktok.png';

@@ -542,8 +542,8 @@ export class HomePageComponent implements OnInit {
 
   // --------------- Profile and Cover Image URLs  --------------------
 
-  coverImageUrl: string = 'assets/pictures/pic1.jpg';
-  profileImageUrl: string = 'assets/pictures/pic2.jpg';
+  coverImageUrl: string = 'assets/pictures/coverImage.jpg';
+  profileImageUrl: string = 'assets/pictures/profilephoto.jpg';
   @ViewChild('coverInput') coverInput?: ElementRef<HTMLInputElement>;
   @ViewChild('profileInput') profileInput?: ElementRef<HTMLInputElement>;
 
