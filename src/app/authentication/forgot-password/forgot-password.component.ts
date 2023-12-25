@@ -7,6 +7,7 @@ import {
   ReactiveFormsModule,
   Validators,
 } from '@angular/forms';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/public-api';
@@ -258,7 +259,8 @@ export class ForgotPasswordComponent {
     private formBuilder: FormBuilder,
     private authensService: AuthenticationService,
     private toastr: ToastrService,
-    private router: Router
+    private router: Router,
+    private snackbar: MatSnackBar
   ) {}
 
   ngOnInit() {
@@ -327,7 +329,7 @@ export class ForgotPasswordComponent {
         this.passwordFormGroup.value.confirmPassword;
 
       if (password !== confirmPassword) {
-        this.toastr.error('Passwords do not match');
+        this.notSamePasswordSnackBar();
         return;
       }
 
@@ -341,7 +343,7 @@ export class ForgotPasswordComponent {
             .confirmPassword(email, password, confirmPassword)
             .subscribe((res: any) => {
               if (res) {
-                this.toastr.success('Password updated successfully');
+                this.passwordSnackbar();
                 this.router.navigateByUrl('');
                 this.isAsyncCall = false;
               }
@@ -349,5 +351,16 @@ export class ForgotPasswordComponent {
         }
       }
     }
+  }
+
+  passwordSnackbar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`PASSWORD UPDATED SUCCESSFULY`, 'X', config);
+  }
+  notSamePasswordSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`PASSWORD NOT SAME`, 'X', config);
   }
 }

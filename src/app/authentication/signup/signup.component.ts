@@ -348,7 +348,7 @@ export class SignUpComponent {
       (res: any) => {
         if (res.status === 200) {
           this.router.navigateByUrl('');
-          this.toastr.success('Account Created successfully!', 'Success');
+          this.successSnackbarRegistered();
         }
       },
       (error) => {
