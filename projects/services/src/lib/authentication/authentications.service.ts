@@ -193,7 +193,7 @@ export class AuthenticationService {
 
     return this.http.get<any>(
       this.backendUrl +
-        `/video/getVideo_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
+        `/video/getVideoThumbnails_Creator/${creatorId}?page=${page}&pageSize=${pageSize}`,
       headers
     );
   }
