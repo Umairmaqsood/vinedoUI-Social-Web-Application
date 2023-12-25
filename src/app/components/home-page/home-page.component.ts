@@ -718,13 +718,15 @@ export class HomePageComponent implements OnInit {
 
   getProfilePicture() {
     this.authensService.getProfilePicture(this.creatorId).subscribe(
-      (res: any) => {
+      (res: Blob) => {
         const reader = new FileReader();
-        reader.readAsDataURL(res); // Read the blob response as data URL
 
-        reader.onloadend = () => {
+        reader.onload = () => {
+          // Convert blob to data URL
           this.profileImageUrl = reader.result as string;
         };
+
+        reader.readAsDataURL(res); // Read the blob response as data URL
       },
       (error) => {
         console.error('Error fetching profile image', error);

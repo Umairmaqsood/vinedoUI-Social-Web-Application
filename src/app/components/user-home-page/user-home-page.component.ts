@@ -617,4 +617,40 @@ export class UserHomePageComponent {
       }
     });
   }
+
+  // --------------- Get Profile Image --------------------
+
+  getProfilePicture() {
+    this.authensService.getProfilePicture(this.creatorId).subscribe(
+      (res: any) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(res); // Read the blob response as data URL
+
+        reader.onloadend = () => {
+          this.profileImageUrl = reader.result as string;
+        };
+      },
+      (error) => {
+        console.error('Error fetching profile image', error);
+      }
+    );
+  }
+
+  // --------------- Get Cover Image --------------------
+
+  getCoverPicture() {
+    this.authensService.getCoverPicture(this.creatorId).subscribe(
+      (res: any) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(res); // Read the blob response as data URL
+
+        reader.onloadend = () => {
+          this.coverImageUrl = reader.result as string;
+        };
+      },
+      (error) => {
+        console.error('Error fetching cover image', error);
+      }
+    );
+  }
 }

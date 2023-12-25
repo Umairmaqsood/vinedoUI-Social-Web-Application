@@ -24,14 +24,14 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
       <mat-card-content style="padding:1px 20px">
         <h2>Upload Video</h2>
         <mat-form-field appearance="outline" class="full">
-          <input matInput placeholder="Video Title" [(ngModel)]="videoTitle" />
+          <label>Video Title</label>
+
+          <input matInput [(ngModel)]="videoTitle" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
-          <input
-            matInput
-            placeholder="Video Description"
-            [(ngModel)]="videoDescription"
-          /> </mat-form-field
+          <label>Video Description</label>
+
+          <input matInput [(ngModel)]="videoDescription" /> </mat-form-field
         ><br />
 
         <button mat-raised-button (click)="fileInput.click()">
