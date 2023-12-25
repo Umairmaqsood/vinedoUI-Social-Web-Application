@@ -68,6 +68,7 @@ import { SearchBarComponent } from '../search-bar/search-bar.component';
   styles: [
     `
       .feed-container {
+        background-color: black;
         display: flex;
         flex-direction: column;
         gap: 20px;

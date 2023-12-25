@@ -139,57 +139,12 @@ import { ActivatedRoute } from '@angular/router';
 
             <h2 style="text-align:center">Videos</h2>
 
-            <div class="video-grid">
-              <div class="video-container" *ngFor="let video of videos">
-                <video [src]="video.url" (click)="expandVideo(video)"></video>
-                <div
-                  class="expanded-view"
-                  [ngClass]="{ active: expandedVideo === video }"
-                >
-                  <div class="video-details">
-                    <video
-                      [src]="video.url"
-                      class="expanded-video"
-                      controls
-                      autoplay
-                    ></video>
-                    <div class="details">
-                      <div class="close-button" (click)="closeExpandedVideo()">
-                        <i class="material-icons">close</i>
-                      </div>
-                      <p class="description">
-                        Description: {{ video.description }}
-                      </p>
-                      <div class="likes-section">
-                        <i class="material-icons">favorite</i>
-                        <p class="likes">Likes: {{ video.likes }}</p>
-                      </div>
-                      <div class="comments-section">
-                        <p class="comments-heading">
-                          Comments: {{ video.comments.length }}
-                        </p>
-                        <div
-                          *ngFor="let comment of video.comments"
-                          class="comment"
-                        >
-                          <p>{{ comment.text }}</p>
-                          <p class="comment-details">
-                            By: {{ comment.author }}
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
             <button
               class="subscribe-btn mat-button"
               mat-raised-button
               (click)="paypalDialog()"
             >
-              Subscribe to see user's post
+              Subscribe to see Creator Videos
             </button>
           </mat-tab>
           <mat-tab>
@@ -199,7 +154,7 @@ import { ActivatedRoute } from '@angular/router';
 
             <h2 style="text-align:center">Pictures</h2>
 
-            <div style="margin-top:40px !important">
+            <!-- <div style="margin-top:40px !important">
               <div class="image-grid">
                 <div class="image-container" *ngFor="let image of images">
                   <img [src]="image.url" (click)="expandImage(image)" />
@@ -218,14 +173,12 @@ import { ActivatedRoute } from '@angular/router';
                           Description: {{ image.description }}
                         </p>
                         <div class="flex-container">
-                          <!-- Your flex container with items -->
                           <div class="flex-item">
                             <div class="likes-section">
                               <i class="material-icons">favorite</i>
                               <p class="likes">Likes: {{ image.likes }}</p>
                             </div>
 
-                            <!-- Your flex container with items -->
 
                             <div class="likes-section">
                               <i
@@ -269,7 +222,15 @@ import { ActivatedRoute } from '@angular/router';
                   </div>
                 </div>
               </div>
-            </div>
+            </div> -->
+
+            <button
+              class="subscribe-btn mat-button"
+              mat-raised-button
+              (click)="paypalDialog()"
+            >
+              Subscribe to see Creator Pictures
+            </button>
           </mat-tab>
         </mat-tab-group>
       </div>
@@ -455,102 +416,6 @@ import { ActivatedRoute } from '@angular/router';
       .comments-section .material-icons {
         font-size: 24px;
         margin-right: 5px; /* Optional margin between icon and text */
-      }
-      /* Style for video grid */
-      .video-grid {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 20px;
-      }
-
-      /* Style for each video container */
-      .video-container {
-        position: relative;
-        width: calc(25% - 20px); /* Adjust as needed */
-      }
-
-      /* Style for videos within containers */
-      .video-container video {
-        width: 100%;
-        cursor: pointer;
-      }
-
-      /* Style for expanded view */
-      .expanded-view {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 80%;
-        height: 80vh;
-        background-color: white;
-        z-index: 1000;
-        display: none;
-        /* Add additional styles as needed */
-      }
-
-      .expanded-view.active {
-        display: block;
-      }
-
-      /* Style for expanded video within expanded view */
-      .expanded-view video {
-        width: 100%;
-        height: 70%;
-        object-fit: contain;
-      }
-
-      /* Style for details in expanded view */
-      .details {
-        padding: 20px;
-      }
-
-      /* Style for close button */
-      .close-button {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        cursor: pointer;
-      }
-
-      /* Style for description */
-      .description {
-        margin-bottom: 15px;
-      }
-
-      /* Style for likes section */
-      .likes-section {
-        display: flex;
-        align-items: center;
-        margin-bottom: 15px;
-      }
-
-      .likes-section i {
-        margin-right: 5px;
-      }
-
-      /* Style for comments section */
-      .comments-section {
-        border-top: 1px solid #ccc;
-        padding-top: 15px;
-      }
-
-      .comments-heading {
-        font-weight: bold;
-        margin-bottom: 10px;
-      }
-
-      .comment {
-        margin-bottom: 10px;
-      }
-
-      .comment p {
-        margin: 5px 0;
-      }
-
-      .comment-details {
-        font-style: italic;
-        color: #666;
       }
     `,
   ],
