@@ -34,11 +34,11 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
         <!-- <form [formGroup]="editDataForm"> -->
         <!-- Inside the Pictures tab -->
         <mat-form-field appearance="outline" class="full">
-          <label>Image Title</label>
+          <mat-label>Image Title</mat-label>
           <input matInput [(ngModel)]="imageTitle" />
         </mat-form-field>
         <mat-form-field appearance="outline" class="full">
-          <label>Image Description</label>
+          <mat-label>Image Description</mat-label>
           <input matInput [(ngModel)]="imageDescription" /> </mat-form-field
         ><br />
 

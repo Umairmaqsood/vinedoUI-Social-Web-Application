@@ -65,7 +65,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
         <div class="flex gap-10 m-t-10">
           <button class="mat-button" mat-raised-button (click)="paypalDialog()">
-            Subscribe $24,99 per month
+            Subscribe {{ this.subscriptionValue }}$ per month
           </button>
           <button mat-raised-button class="mat-button" [disabled]="true">
             Request Content
@@ -514,6 +514,7 @@ export class UserHomePageComponent {
     this.getCoverPicture();
     this.getProfilePicture();
     this.fetchImages();
+    this.getPricing();
   }
 
   paypalDialog() {
@@ -664,5 +665,18 @@ export class UserHomePageComponent {
           console.error('Error fetching cover image:', error);
         }
       );
+  }
+
+  paypalValue: any;
+  subscriptionValue: any;
+
+  getPricing() {
+    this.authensService.getCreatorPricing(this.creatorId).subscribe((res) => {
+      if (res && res.result) {
+        this.subscriptionValue = res.result.user.subscriptionPrice;
+        this.paypalValue = res.result.user.payPalEmail;
+        console.log('response of get pricing', res);
+      }
+    });
   }
 }

@@ -12,13 +12,14 @@ import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
 import { UploadVideoDialogComponent } from '../upload-video-dialog/upload-video-dialog.component';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
 import { HttpClient, HttpResponse } from '@angular/common/http';
+import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.component';
 
 @Component({
   selector: 'app-home-page',
@@ -101,9 +102,9 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
             <button
               style="background-color:#2aaa8a;  color:white; font-weight:bold; border-radius:10px;  padding:28px 25px"
               mat-raised-button
-              (click)="uploadPricing()"
+              (click)="uploadPricing(creatorId)"
             >
-              Pricing
+              Pricing$
             </button>
             <mat-form-field>
               <mat-label>Post</mat-label>
@@ -164,11 +165,17 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
           <!---------------------------- Social Media Buttons ------------------------>
 
           <div class="flex gap-20">
-            <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
+            <a href="https://www.twitter.com">
+              <img [src]="twitterUrl" alt="twitter" class="socialIcon"
+            /></a>
 
-            <img [src]="instaUrl" alt="Insta" class="socialIcon" />
+            <a href="https://www.instagram.com">
+              <img [src]="instaUrl" alt="Insta" class="socialIcon"
+            /></a>
 
-            <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
+            <a href="https://www.tiktok.com">
+              <img [src]="tiktokUrl" alt="tiktok" class="socialIcon"
+            /></a>
           </div>
         </div>
 
@@ -552,6 +559,8 @@ export class HomePageComponent implements OnInit {
   joined: any;
   bioShortened = true;
   showReadMore = false;
+  payPalEmail: any;
+  subscriptionPrice: any;
 
   expandVideo(video: any) {
     this.expandedVideo = this.expandedVideo === video ? null : video;
@@ -650,6 +659,27 @@ export class HomePageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.getPersonalInfo();
+      }
+    });
+  }
+
+  // --------------- Upload Pricing Dialog  --------------------
+
+  uploadPricing(item: any) {
+    const dialogRef = this.dialog.open(CreatorPricingComponent, {
+      data: {
+        item: {
+          userId: this.creatorId,
+          subscriptionPrice: this.subscriptionPrice,
+          payPalEmail: this.payPalEmail,
+        },
+      },
+      width: '400px',
+      height: '460px',
+    });
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        // this.getPersonalInfo();
       }
     });
   }
@@ -768,8 +798,6 @@ export class HomePageComponent implements OnInit {
       })
       .subscribe(
         (res: HttpResponse<any>) => {
-          console.log('Successful response:', res);
-
           // Convert ArrayBuffer to base64 for image display
           const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
           const reader = new FileReader();
@@ -799,8 +827,6 @@ export class HomePageComponent implements OnInit {
       })
       .subscribe(
         (res: HttpResponse<any>) => {
-          console.log('Successful response:', res);
-
           // Convert ArrayBuffer to base64 for image display
           const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
           const reader = new FileReader();
@@ -880,7 +906,6 @@ export class HomePageComponent implements OnInit {
           this.imageDeleteSnackBar();
           this.isAsyncDeleteImageCall = false;
           this.expandImage(true);
-          console.log(res, 'res of delete images');
         }
       });
   }
@@ -895,7 +920,6 @@ export class HomePageComponent implements OnInit {
         if (res) {
           this.imageDataArray = res;
           this.isAsyncCall = false;
-          console.log(res, 'res of delete videos');
         }
       });
   }
@@ -981,8 +1005,4 @@ export class HomePageComponent implements OnInit {
     config.duration = 5000;
     this.snackbar.open(`ERROR IN UPLOADING FILE`, 'X', config);
   }
-
-  // ----------------------Upload Pricing--------------------------
-
-  uploadPricing() {}
 }
