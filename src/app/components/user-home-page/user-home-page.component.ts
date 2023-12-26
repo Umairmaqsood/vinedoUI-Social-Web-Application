@@ -8,6 +8,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
 import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
+import { InjectableService } from '../../InjectableService';
 
 @Component({
   selector: 'app-user-home-page',
@@ -483,6 +484,9 @@ export class UserHomePageComponent {
   bioShortened = true;
   showReadMore = false;
   userId: any;
+  paypalValue: any;
+  subscriptionValue: any;
+  subscriptionId: any;
 
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
@@ -499,7 +503,8 @@ export class UserHomePageComponent {
     private authensService: AuthenticationService,
     private route: ActivatedRoute,
     private http: HttpClient,
-    private snackbar: MatSnackBar
+    private snackbar: MatSnackBar,
+    private injectableService: InjectableService
   ) {}
 
   toggleBio() {
@@ -509,7 +514,6 @@ export class UserHomePageComponent {
   ngOnInit() {
     this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
-      console.log('creator id', this.creatorId);
       this.userId = localStorage.getItem('_id');
     });
     this.getPersonalInfo();
@@ -517,7 +521,8 @@ export class UserHomePageComponent {
     this.getProfilePicture();
     this.fetchImages();
     this.getPricing();
-    this.payNormalAmount();
+    this.injectableService.userId = this.userId;
+    this.injectableService.creatorId = this.creatorId;
   }
 
   paypalDialog() {
@@ -665,28 +670,14 @@ export class UserHomePageComponent {
         }
       );
   }
-
-  paypalValue: any;
-  subscriptionValue: any;
-  subscriptionId: any;
-
   getPricing() {
     this.authensService.getCreatorPricing(this.creatorId).subscribe((res) => {
       if (res && res.result) {
         this.subscriptionValue = res.result.user.subscriptionPrice;
         this.paypalValue = res.result.user.payPalEmail;
         this.subscriptionId = res.result.user._id;
+        this.injectableService.setSubscriptionId(this.subscriptionId);
       }
     });
-  }
-
-  payNormalAmount() {
-    this.authensService
-      .payNormalAmount(this.userId, this.creatorId, this.subscriptionId)
-      .subscribe((res) => {
-        if (res) {
-          console.log(res, 'response of paynormalamount');
-        }
-      });
   }
 }

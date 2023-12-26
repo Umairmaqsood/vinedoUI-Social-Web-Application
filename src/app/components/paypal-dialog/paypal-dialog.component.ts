@@ -1,6 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { MaterialModule } from 'projects/material/src/public-api';
+import { InjectableService } from '../../InjectableService';
+import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 
 @Component({
   selector: 'app-paypal-dialog',
@@ -53,7 +55,7 @@ for yourself."
           style="text-decoration:none"
           target="_blank"
         >
-          <button mat-raised-button color="primary">
+          <button mat-raised-button color="primary" (click)="payNormalAmount()">
             Pay with <b><i>PayPal</i></b>
           </button>
         </a>
@@ -77,4 +79,38 @@ for yourself."
     '.mat-color{color:white; justify-content:center; text-align:center} .ml-15{margin-left:15%} .w-8{width:80%} .mat-content{padding: 0px 20px ;line-height:1.2} .mat-button{ background-color:"#006baa";display:block;margin:0px auto}',
   ],
 })
-export class PaypalDialogComponent {}
+export class PaypalDialogComponent {
+  private latestSubscriptionId = '';
+
+  constructor(
+    private injectableService: InjectableService,
+    private authensService: AuthenticationService
+  ) {}
+
+  ngOnInit() {
+    const userId = this.injectableService.userId;
+    const creatorId = this.injectableService.creatorId;
+
+    this.injectableService.subscriptionId$.subscribe((subscriptionId) => {
+      console.log('SubscriptionId in ngOnInit:', subscriptionId);
+      this.latestSubscriptionId = subscriptionId || '';
+    });
+
+    console.log(userId, ' ', creatorId);
+  }
+
+  payNormalAmount() {
+    const userId = this.injectableService.userId;
+    const creatorId = this.injectableService.creatorId;
+    const subscriptionId = this.latestSubscriptionId;
+    console.log('SubscriptionId in payNormalAmount:', subscriptionId);
+
+    this.authensService
+      .payNormalAmount(userId, creatorId, subscriptionId)
+      .subscribe((res) => {
+        if (res) {
+          console.log(res, 'response of paynormalamount');
+        }
+      });
+  }
+}
