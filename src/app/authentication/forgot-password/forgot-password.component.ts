@@ -13,6 +13,7 @@ import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
 import { AsyncSpinnerComponent } from 'src/app/components';
+import { AsyncSpinnerButtonComponent } from 'src/app/components/async-spinner-button/async-spinner-button.component';
 
 @Component({
   selector: 'app-forgot-password',
@@ -22,6 +23,7 @@ import { AsyncSpinnerComponent } from 'src/app/components';
     MaterialModule,
     ReactiveFormsModule,
     AsyncSpinnerComponent,
+    AsyncSpinnerButtonComponent,
   ],
   template: `
     <div class="container">
@@ -30,11 +32,7 @@ import { AsyncSpinnerComponent } from 'src/app/components';
           <mat-card-header>
             <mat-card-title>Forget Password</mat-card-title>
           </mat-card-header>
-          <form
-            [formGroup]="otpFormGroup"
-            (ngSubmit)="onSubmitEmail()"
-            class="example-container"
-          >
+          <form [formGroup]="otpFormGroup" class="example-container">
             <mat-form-field appearance="outline">
               <mat-icon matPrefix
                 ><svg
@@ -54,9 +52,15 @@ import { AsyncSpinnerComponent } from 'src/app/components';
               <input matInput type="email" formControlName="email" required />
             </mat-form-field>
             <mat-card-actions>
-              <button type="submit" mat-raised-button class="mat-btn">
+              <!-- <button type="submit" mat-raised-button class="mat-btn">
                 Send OTP
-              </button>
+              </button> -->
+
+              <app-async-spinner-button
+                [isAsyncCall]="isAsyncCall"
+                (click)="onSubmitEmail()"
+                >Send OTP</app-async-spinner-button
+              >
             </mat-card-actions>
           </form>
         </mat-card>
@@ -270,8 +274,16 @@ export class ForgotPasswordComponent {
         this.authensService.forgotPassword(email).subscribe((res: any) => {
           if (res) {
             this.resetPasswordStep = 2;
+            this.otpSendToEmail();
             this.isAsyncCall = false;
           }
+          (error: any) => {
+            if (error.status === 400) {
+              this.emailNotFound400();
+            } else {
+              this.error();
+            }
+          };
         });
         // Make API call to send OTP for provided email
         // Handle success or error response accordingly
@@ -298,12 +310,23 @@ export class ForgotPasswordComponent {
         const email: string = emailControl.value;
         const otp: string = otpControl.value;
         this.isAsyncCall = true;
-        this.authensService.otpValidation(email, otp).subscribe((res: any) => {
-          if (res) {
-            this.resetPasswordStep = 3;
-            this.isAsyncCall = false;
+        this.authensService.otpValidation(email, otp).subscribe(
+          (res: any) => {
+            if (res) {
+              this.resetPasswordStep = 3;
+              this.isAsyncCall = false;
+            }
+          },
+          (error) => {
+            if (error.status === 403) {
+              this.otpSnackBarError();
+            } else if (error.status === 401) {
+              this.otpErrorSnackBar();
+            } else {
+              this.error();
+            }
           }
-        });
+        );
       }
     }
   }
@@ -333,6 +356,15 @@ export class ForgotPasswordComponent {
                 this.router.navigateByUrl('');
                 this.isAsyncCall = false;
               }
+              (error: any) => {
+                if (error.status === 401) {
+                  this.confirmPasswordError();
+                } else if (error.status === 400) {
+                  this.confirmPasswordError400();
+                } else {
+                  this.error();
+                }
+              };
             });
         }
       }
@@ -348,5 +380,56 @@ export class ForgotPasswordComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(`PASSWORD NOT SAME`, 'X', config);
+  }
+  otpSnackBarError() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`INCORRECT OTP. PLEASE ENTER A VALID ONE`, 'X', config);
+  }
+  otpErrorSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`OTP EXPIRED`, 'X', config);
+  }
+  error() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`AN ERROR OCCURED. PLEASE TRY AGAIN LATER`, 'X', config);
+  }
+
+  confirmPasswordError() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(
+      `PASSWORD AND CONFIRM PASSWORD ARE NOT SAME`,
+      'X',
+      config
+    );
+  }
+
+  confirmPasswordError400() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`PASSWORD OR EMAIL ADDRESS IS MISSING`, 'X', config);
+  }
+
+  otpSendToEmail() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(
+      `6-DIGITS OTP HAS BEEN SENT TO YOUR REGISTERED EMAIL`,
+      'X',
+      config
+    );
+  }
+
+  emailNotFound400() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(
+      `EMAIL NOT FOUND, PLEASE ENTER A VALID ONE`,
+      'X',
+      config
+    );
   }
 }

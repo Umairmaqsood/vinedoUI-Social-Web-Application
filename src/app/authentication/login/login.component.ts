@@ -118,13 +118,10 @@ export interface LoginRequestData {
                 ><div style="color: white;">Remember me</div></mat-checkbox
               >
             </section>
-            <h6>
-              <button mat-button>
-                <a style="color:white;" (click)="Forgetpwd()"
-                  >Forget password</a
-                >
-              </button>
-            </h6>
+
+            <button mat-button style="color:white" (click)="Forgetpwd()">
+              Forget password
+            </button>
           </div>
           <mat-card-actions>
             <button
@@ -243,6 +240,6 @@ export class LoginComponent implements OnInit {
   errorSnackBar(): void {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
-    this.snackbar.open(`LOGIN FAILED. PLEASE TRY AGAIN.', 'ERROR`, 'X', config);
+    this.snackbar.open(`LOGIN FAILED. PLEASE TRY AGAIN.'ERROR`, 'X', config);
   }
 }
