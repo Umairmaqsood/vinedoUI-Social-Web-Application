@@ -57,6 +57,8 @@ export class AuthenticationService {
           localStorage.setItem('userName', decodedToken.name || '');
           localStorage.setItem('userBio', decodedToken.bio || '');
           localStorage.setItem('userLocation', decodedToken.location || '');
+          localStorage.setItem('_id', decodedToken._id || '');
+          console.log(localStorage.getItem('_id'), 'My Id');
 
           localStorage.setItem(
             'isContentCreator',
@@ -409,17 +411,25 @@ export class AuthenticationService {
       headers
     );
   }
-  payNormalAmount() {
+
+  payNormalAmount(userId: string, creatorId: string, subscriptionId: string) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+    const data = {
+      userId,
+      creatorId,
+      subscriptionId,
+    };
+    console.log(subscriptionId, 'subscriptionId PyaLoad');
 
     // Set the token in the Authorization header
     const headers = {
       headers: new HttpHeaders().set('x-access-token', userToken || ''),
     };
 
-    return this.http.get<any>(
+    return this.http.post<any>(
       this.backendUrl + `/subscription/payNormalAmount`,
+      data,
       headers
     );
   }

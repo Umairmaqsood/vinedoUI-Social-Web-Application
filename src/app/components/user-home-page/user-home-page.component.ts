@@ -482,6 +482,7 @@ export class UserHomePageComponent {
   location: any;
   bioShortened = true;
   showReadMore = false;
+  userId: any;
 
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
@@ -509,12 +510,14 @@ export class UserHomePageComponent {
     this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
       console.log('creator id', this.creatorId);
+      this.userId = localStorage.getItem('_id');
     });
     this.getPersonalInfo();
     this.getCoverPicture();
     this.getProfilePicture();
     this.fetchImages();
     this.getPricing();
+    this.payNormalAmount();
   }
 
   paypalDialog() {
@@ -618,8 +621,6 @@ export class UserHomePageComponent {
       })
       .subscribe(
         (res: HttpResponse<any>) => {
-          console.log('Successful response:', res);
-
           // Convert ArrayBuffer to base64 for image display
           const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
           const reader = new FileReader();
@@ -649,8 +650,6 @@ export class UserHomePageComponent {
       })
       .subscribe(
         (res: HttpResponse<any>) => {
-          console.log('Successful response:', res);
-
           // Convert ArrayBuffer to base64 for image display
           const blob = new Blob([res.body], { type: 'image/jpeg' }); // Modify the type according to your image format
           const reader = new FileReader();
@@ -669,14 +668,25 @@ export class UserHomePageComponent {
 
   paypalValue: any;
   subscriptionValue: any;
+  subscriptionId: any;
 
   getPricing() {
     this.authensService.getCreatorPricing(this.creatorId).subscribe((res) => {
       if (res && res.result) {
         this.subscriptionValue = res.result.user.subscriptionPrice;
         this.paypalValue = res.result.user.payPalEmail;
-        console.log('response of get pricing', res);
+        this.subscriptionId = res.result.user._id;
       }
     });
+  }
+
+  payNormalAmount() {
+    this.authensService
+      .payNormalAmount(this.userId, this.creatorId, this.subscriptionId)
+      .subscribe((res) => {
+        if (res) {
+          console.log(res, 'response of paynormalamount');
+        }
+      });
   }
 }
