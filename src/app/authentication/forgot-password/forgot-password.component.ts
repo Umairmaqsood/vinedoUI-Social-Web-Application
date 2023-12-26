@@ -271,23 +271,23 @@ export class ForgotPasswordComponent {
       if (emailControl && emailControl.valid) {
         const email: string = emailControl.value;
         this.isAsyncCall = true;
-        this.authensService.forgotPassword(email).subscribe((res: any) => {
-          if (res) {
-            this.resetPasswordStep = 2;
-            this.otpSendToEmail();
-            this.isAsyncCall = false;
-          }
+        this.authensService.forgotPassword(email).subscribe(
+          (res: any) => {
+            if (res) {
+              this.resetPasswordStep = 2;
+              this.otpSendToEmail();
+              this.isAsyncCall = false;
+            }
+          },
+
           (error: any) => {
-            if (error.status === 400) {
+            if (error.status === 404) {
               this.emailNotFound400();
             } else {
               this.error();
             }
-          };
-        });
-        // Make API call to send OTP for provided email
-        // Handle success or error response accordingly
-        // For example:
+          }
+        );
       }
     }
   }
@@ -350,12 +350,14 @@ export class ForgotPasswordComponent {
           this.isAsyncCall = true;
           this.authensService
             .confirmPassword(email, password, confirmPassword)
-            .subscribe((res: any) => {
-              if (res) {
-                this.passwordSnackbar();
-                this.router.navigateByUrl('');
-                this.isAsyncCall = false;
-              }
+            .subscribe(
+              (res: any) => {
+                if (res) {
+                  this.passwordSnackbar();
+                  this.router.navigateByUrl('');
+                  this.isAsyncCall = false;
+                }
+              },
               (error: any) => {
                 if (error.status === 401) {
                   this.confirmPasswordError();
@@ -364,8 +366,8 @@ export class ForgotPasswordComponent {
                 } else {
                   this.error();
                 }
-              };
-            });
+              }
+            );
         }
       }
     }

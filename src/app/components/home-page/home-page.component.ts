@@ -98,6 +98,13 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
           <!-------- POST Select button and Notifications icon ----------------->
 
           <div class="flex gap-10 m-t-10">
+            <button
+              style="background-color:#2aaa8a;  color:white; font-weight:bold; border-radius:10px;  padding:28px 25px"
+              mat-raised-button
+              (click)="uploadPricing()"
+            >
+              Pricing
+            </button>
             <mat-form-field>
               <mat-label>Post</mat-label>
               <mat-select>
@@ -110,7 +117,10 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
               </mat-select>
             </mat-form-field>
 
-            <mat-icon class="m-t-15 cursor" (click)="openNotifications()"
+            <mat-icon
+              class="m-t-15 cursor"
+              disabled="true"
+              (click)="openNotifications()"
               >notifications</mat-icon
             >
           </div>
@@ -123,7 +133,7 @@ import { HttpClient, HttpResponse } from '@angular/common/http';
             <h2>{{ username }}</h2>
             <mat-icon
               (click)="editProfileDialog(creatorId)"
-              class="m-t-20 cursor"
+              class="m-t-25 cursor"
               >edit</mat-icon
             >
           </div>
@@ -971,4 +981,8 @@ export class HomePageComponent implements OnInit {
     config.duration = 5000;
     this.snackbar.open(`ERROR IN UPLOADING FILE`, 'X', config);
   }
+
+  // ----------------------Upload Pricing--------------------------
+
+  uploadPricing() {}
 }
