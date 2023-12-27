@@ -158,11 +158,11 @@ export class CreatorPricingComponent {
 
   getPricing() {
     this.authensService
-      .getCreatorPricing(this.data.item.userId)
+      .getCreatorPricing(this.data?.item?.userId)
       .subscribe((res) => {
         if (res && res.result) {
-          this.subscriptionValue = res.result.user.subscriptionPrice;
-          this.paypalValue = res.result.user.payPalEmail;
+          this.subscriptionValue = res.result.user.subscriptionPrice ?? '';
+          this.paypalValue = res.result.user.payPalEmail ?? '';
           console.log('response of get pricing', res);
 
           // Patch the form with the retrieved data

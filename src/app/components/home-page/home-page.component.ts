@@ -618,6 +618,12 @@ export class HomePageComponent implements OnInit {
       width: '450px',
       height: '500px',
     });
+    dialog.afterClosed().subscribe((res) => {
+      if (res) {
+        console.log('response of images uplaoded', res);
+        this.getUploadImages();
+      }
+    });
   }
 
   // --------------- Open Video Dialog  --------------------
@@ -629,6 +635,12 @@ export class HomePageComponent implements OnInit {
       },
       width: '450px',
       height: '500px',
+    });
+    dialog.afterClosed().subscribe((res) => {
+      if (res) {
+        console.log('response of videos uplaoded', res);
+        this.getUploadVideos();
+      }
     });
   }
 
@@ -706,7 +718,7 @@ export class HomePageComponent implements OnInit {
           'Nov',
           'Dec',
         ];
-        const date = new Date(res.result.createdAt);
+        const date = new Date(res.result.dateOfBirth);
         const formattedDate =
           months[date.getMonth()] +
           ' ' +
@@ -789,7 +801,7 @@ export class HomePageComponent implements OnInit {
 
   getProfilePicture() {
     const creatorId = this.creatorId; // Replace with your actual creator ID
-
+    this.isAsyncCall = true;
     this.http
       .get('http://localhost:3000/v1/vidmo/userEssentials/getProfile', {
         params: { id: creatorId },
@@ -807,9 +819,11 @@ export class HomePageComponent implements OnInit {
           };
 
           reader.readAsDataURL(blob);
+          this.isAsyncCall = false;
         },
         (error) => {
           console.error('Error fetching profile image:', error);
+          this.isAsyncCall = false;
         }
       );
   }
@@ -818,7 +832,7 @@ export class HomePageComponent implements OnInit {
 
   getCoverPicture() {
     const creatorId = this.creatorId; // Replace with your actual creator ID
-
+    this.isAsyncCall = true;
     this.http
       .get('http://localhost:3000/v1/vidmo/userEssentials/getCover', {
         params: { id: creatorId },
@@ -836,9 +850,11 @@ export class HomePageComponent implements OnInit {
           };
 
           reader.readAsDataURL(blob);
+          this.isAsyncCall = false;
         },
         (error) => {
           console.error('Error fetching cover image:', error);
+          this.isAsyncCall = false;
         }
       );
   }
@@ -903,6 +919,7 @@ export class HomePageComponent implements OnInit {
       .deletedUploadedImages(imageId, creatorId)
       .subscribe((res: any) => {
         if (res) {
+          this.getUploadImages();
           this.imageDeleteSnackBar();
           this.isAsyncDeleteImageCall = false;
           this.expandImage(true);

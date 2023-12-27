@@ -121,11 +121,12 @@ export class UploadVideoDialogComponent {
         .subscribe(
           (response) => {
             this.showSnackbar();
-            this.matDialogRef.close(true);
+            this.matDialogRef.close(response);
             this.isAsyncCall = false;
           },
           (error) => {
-            // Handle error
+            this.error();
+            this.isAsyncCall = false;
             console.error('Error uploading video:', error);
           }
         );
@@ -150,5 +151,10 @@ export class UploadVideoDialogComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.matSnackBar.open(`VIDEO UPLOADED SUCCESSFULLY!`, 'X', config);
+  }
+  error(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.matSnackBar.open(`AN ERROR OCCUR DURING UPLOADING!`, 'X', config);
   }
 }

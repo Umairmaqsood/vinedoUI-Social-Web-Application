@@ -283,8 +283,10 @@ export class ForgotPasswordComponent {
           (error: any) => {
             if (error.status === 404) {
               this.emailNotFound400();
+              this.isAsyncCall = false;
             } else {
               this.error();
+              this.isAsyncCall = false;
             }
           }
         );
@@ -320,10 +322,13 @@ export class ForgotPasswordComponent {
           (error) => {
             if (error.status === 403) {
               this.otpSnackBarError();
+              this.isAsyncCall = false;
             } else if (error.status === 401) {
               this.otpErrorSnackBar();
+              this.isAsyncCall = false;
             } else {
               this.error();
+              this.isAsyncCall = false;
             }
           }
         );
@@ -361,10 +366,13 @@ export class ForgotPasswordComponent {
               (error: any) => {
                 if (error.status === 401) {
                   this.confirmPasswordError();
+                  this.isAsyncCall = false;
                 } else if (error.status === 400) {
                   this.confirmPasswordError400();
+                  this.isAsyncCall = false;
                 } else {
                   this.error();
+                  this.isAsyncCall = false;
                 }
               }
             );

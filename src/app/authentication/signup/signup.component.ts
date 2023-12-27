@@ -14,6 +14,7 @@ import { Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
 import { MaterialModule } from 'projects/material/src/lib/material.module';
 import { AuthenticationService } from 'projects/services/src/lib/authentication/authentications.service';
+import { AsyncSpinnerButtonComponent } from '../../components/async-spinner-button/async-spinner-button.component';
 // import {
 //   AuthSapiensService,
 //   BSUserTypeService,
@@ -23,7 +24,6 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule, MaterialModule, ReactiveFormsModule],
   template: `
     <!-- signup.component.html -->
 
@@ -197,7 +197,7 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
           </mat-form-field>
 
           <mat-card-actions class="jc-center">
-            <button
+            <!-- <button
               type="submit"
               style="width:50%;color:white;align:center;"
               mat-button
@@ -207,7 +207,17 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
               }"
             >
               Sign Up
-            </button>
+            </button> -->
+
+            <app-async-spinner-button
+              style="width:50%;color:white;align:center;"
+              [isAsyncCall]="isAsyncCall"
+              [disabled]="signupForm.invalid"
+              [ngStyle]="{
+                'background-color': signupForm.invalid ? '#2aaa8a' : '#2aaa8a'
+              }"
+              >Sign Up</app-async-spinner-button
+            >
           </mat-card-actions>
         </form>
         <div>
@@ -264,6 +274,12 @@ import { AuthenticationService } from 'projects/services/src/lib/authentication/
         justify-content: center;
       }
     `,
+  ],
+  imports: [
+    CommonModule,
+    MaterialModule,
+    ReactiveFormsModule,
+    AsyncSpinnerButtonComponent,
   ],
 })
 export class SignUpComponent {
@@ -343,18 +359,20 @@ export class SignUpComponent {
         if (res.status === 200) {
           this.router.navigateByUrl('');
           this.successSnackbarRegistered();
+          this.isAsyncCall = false;
         }
       },
       (error) => {
         if (error.status === 409) {
           this.errorSnackbarRegistered();
+          this.isAsyncCall = false;
         } else if (error.status === 400) {
           this.errorSnackbar();
+          this.isAsyncCall = false;
         } else {
           this.error();
+          this.isAsyncCall = false;
         }
-
-        this.isAsyncCall = false;
       }
     );
   }
@@ -379,7 +397,7 @@ export class SignUpComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(
-      `USER ACCOUNT CREATED SUCCESSFULLY., SUCCESS`,
+      `USER ACCOUNT CREATED SUCCESSFULLY. SUCCESS`,
       'X',
       config
     );
