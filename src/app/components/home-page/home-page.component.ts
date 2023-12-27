@@ -545,7 +545,7 @@ export class HomePageComponent implements OnInit {
   expandedImage: any = null;
   expandedVideo: any = null;
   ImageId: any;
-  VideoId: any;
+  videoId: any;
   isAsyncCall = false;
   isImageAsyncCall = false;
   isVideoAsyncCall = false;
@@ -604,6 +604,7 @@ export class HomePageComponent implements OnInit {
     this.getPersonalInfo();
     this.getProfilePicture();
     this.getCoverPicture();
+    this.getUploadSingleVideos();
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -718,7 +719,7 @@ export class HomePageComponent implements OnInit {
           'Nov',
           'Dec',
         ];
-        const date = new Date(res.result.dateOfBirth);
+        const date = new Date(res.result.createdAt);
         const formattedDate =
           months[date.getMonth()] +
           ' ' +
@@ -911,6 +912,25 @@ export class HomePageComponent implements OnInit {
       });
   }
 
+  // --------------- Get uploaded single videos --------------------
+  getUploadSingleVideos() {
+    this.isVideoAsyncCall = true;
+    this.authensService
+      .getUploadedSingleVideos(this.creatorId, this.videoId)
+      .subscribe((res: any) => {
+        if (res && res.result && res.result.length > 0) {
+          res.result.forEach((video: any) => {
+            const blob = this.base64toBlob(video.videoData, 'video/mp4');
+            video.blobData = blob;
+            video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+          });
+          this.videoDataArray = res.result;
+        }
+        this.isVideoAsyncCall = false;
+        console.log(res, 'res of single videos');
+      });
+  }
+
   // --------------- Deleted Images Api --------------------
 
   deleteUploadedImages(imageId: any, creatorId: any) {
@@ -932,7 +952,7 @@ export class HomePageComponent implements OnInit {
   deleteUploadedVideos() {
     this.isAsyncCall = true;
     this.authensService
-      .deletedUploadedVideos(this.creatorId, this.VideoId)
+      .deletedUploadedVideos(this.creatorId, this.videoId)
       .subscribe((res: any) => {
         if (res) {
           this.imageDataArray = res;

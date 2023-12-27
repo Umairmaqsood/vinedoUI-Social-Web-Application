@@ -43,7 +43,7 @@ import { InjectableService } from '../../InjectableService';
       <img
         [src]="coverImageUrl"
         alt="Profile Cover Image"
-        style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; cursor:pointer"
+        style="width: 100%; height: 260px; overflow: hidden; object-fit: cover; "
       />
     </div>
 
@@ -54,11 +54,7 @@ import { InjectableService } from '../../InjectableService';
         <div class="profile-info">
           <!-- Profile Picture -->
           <div class="profile-picture">
-            <img
-              [src]="profileImageUrl"
-              alt="Profile-Picture"
-              style="cursor:pointer"
-            />
+            <img [src]="profileImageUrl" alt="Profile-Picture" />
           </div>
         </div>
 

@@ -197,6 +197,22 @@ export class AuthenticationService {
     );
   }
 
+  getUploadedSingleVideos(creatorId: string, videoId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl +
+        `/video/getSingleVideo/?creatorId=${creatorId}&videoId=${videoId}`,
+      headers
+    );
+  }
+
   deletedUploadedImages(imageId: string, creatorId: string) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
@@ -452,7 +468,6 @@ export class AuthenticationService {
       { headers } // Include headers
     );
   }
-
   getUploadedVideosOnUserSide(
     userId: string,
     creatorId: string,

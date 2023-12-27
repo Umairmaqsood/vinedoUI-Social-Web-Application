@@ -48,10 +48,20 @@ import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinn
         </form>
 
         <label> Link Socials</label>
+        <!---------------------------- Social Media Buttons ------------------------>
+
         <div class="flex gap-20 m-t-10">
-          <img [src]="twitterUrl" alt="twitter" class="socialIcon" />
-          <img [src]="instaUrl" alt="Insta" class="socialIcon" />
-          <img [src]="tiktokUrl" alt="tiktok" class="socialIcon" />
+          <a href="https://www.twitter.com">
+            <img [src]="twitterUrl" alt="twitter" class="socialIcon"
+          /></a>
+
+          <a href="https://www.instagram.com">
+            <img [src]="instaUrl" alt="Insta" class="socialIcon"
+          /></a>
+
+          <a href="https://www.tiktok.com">
+            <img [src]="tiktokUrl" alt="tiktok" class="socialIcon"
+          /></a>
         </div>
       </mat-card-content>
 
