@@ -433,4 +433,49 @@ export class AuthenticationService {
       headers
     );
   }
+
+  getUploadedImagesOnUserSide(
+    userId: string,
+    creatorId: string,
+    page: number,
+    pageSize: number
+  ) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    const headers = new HttpHeaders().set('x-access-token', userToken || '');
+    const data = { userId, creatorId, page, pageSize }; // Parameters sent in the body
+
+    return this.http.post<any>(
+      `${this.backendUrl}/content/getImages`, // Endpoint without URL parameters
+      data,
+      { headers } // Include headers
+    );
+  }
+
+  getUploadedVideosOnUserSide(
+    userId: string,
+    creatorId: string,
+    page: number,
+    pageSize: number
+  ) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+    const data = {
+      userId,
+      creatorId,
+      page,
+      pageSize,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + '/content/getVideos',
+      data,
+      headers
+    );
+  }
 }

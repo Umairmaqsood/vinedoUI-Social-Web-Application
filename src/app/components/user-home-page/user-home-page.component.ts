@@ -487,6 +487,8 @@ export class UserHomePageComponent {
   paypalValue: any;
   subscriptionValue: any;
   subscriptionId: any;
+  imageDataArray: any[] = [];
+  videoDataArray: any[] = [];
 
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
@@ -523,6 +525,8 @@ export class UserHomePageComponent {
     this.getPricing();
     this.injectableService.userId = this.userId;
     this.injectableService.creatorId = this.creatorId;
+    this.getUploadedImages();
+    this.getUploadedVideos();
   }
 
   paypalDialog() {
@@ -679,5 +683,74 @@ export class UserHomePageComponent {
         this.injectableService.setSubscriptionId(this.subscriptionId);
       }
     });
+  }
+
+  // Function to convert Blob to Object URL
+  blobToObjectURL(blob: Blob): string {
+    return URL.createObjectURL(blob);
+  }
+
+  page = 1;
+  pageSize = 10;
+
+  getUploadedImages() {
+    this.isAsyncCall = true;
+    this.authensService
+      .getUploadedImagesOnUserSide(
+        this.userId,
+        this.creatorId,
+        this.page,
+        this.pageSize
+      )
+      .subscribe((result) => {
+        result.result.forEach((image: any) => {
+          const blob = this.base64toBlob(image.imageData, 'image/png');
+          image.blobData = blob;
+          image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+        });
+
+        this.imageDataArray = result.result;
+        this.isAsyncCall = false;
+      });
+  }
+
+  getUploadedVideos() {
+    this.isAsyncCall = true;
+    this.authensService
+      .getUploadedVideosOnUserSide(
+        this.userId,
+        this.creatorId,
+        this.page,
+        this.pageSize
+      )
+      .subscribe((result) => {
+        result.result.forEach((video: any) => {
+          const blob = this.base64toBlob(video.videoData, 'image/png');
+          video.blobData = blob;
+          video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+        });
+
+        this.videoDataArray = result.result;
+        this.isAsyncCall = false;
+      });
+  }
+
+  base64toBlob(base64Data: string, contentType: string = ''): Blob {
+    const byteCharacters = atob(base64Data);
+    const byteArrays = [];
+
+    for (let offset = 0; offset < byteCharacters.length; offset += 512) {
+      const slice = byteCharacters.slice(offset, offset + 512);
+
+      const byteNumbers = new Array(slice.length);
+      for (let i = 0; i < slice.length; i++) {
+        byteNumbers[i] = slice.charCodeAt(i);
+      }
+
+      const byteArray = new Uint8Array(byteNumbers);
+      byteArrays.push(byteArray);
+    }
+
+    return new Blob(byteArrays, { type: contentType });
   }
 }
