@@ -189,22 +189,28 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
               </ng-template>
 
               <h2 style="text-align:center">Videos</h2>
-              <!-- Video Thumbnails --------------------------------------------->
               <div *ngIf="videoDataArray.length > 0">
                 <h2>Video Gallery</h2>
                 <div class="video-gallery">
                   <div *ngFor="let video of videoDataArray">
                     <div class="video-item">
                       <h3>{{ video.title }}</h3>
-                      <video width="320" height="240" controls>
-                        <source [src]="video.fileName" type="video/mp4" />
-                        Your browser does not support the video tag.
-                      </video>
+                      <img
+                        [src]="video.thumbnailUrl"
+                        alt="Thumbnail"
+                        width="320"
+                        height="240"
+                      />
                       <p>Description: {{ video.description }}</p>
                       <!-- You can display other video details here -->
                     </div>
                   </div>
                 </div>
+              </div>
+
+              <div *ngIf="videoDataArray.length === 0">
+                <!-- Show a message if there are no videos -->
+                <p>No videos available.</p>
               </div>
               <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
@@ -227,6 +233,8 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                         [src]="images.objectURL"
                         [alt]="images.title"
                         (click)="expandImage(images)"
+                        width="320"
+                        height="240"
                       />
                       <div
                         class="expanded-view"
@@ -386,8 +394,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
       }
 
       .image-container img {
-        width: 100%;
-        height: 70%;
+        min-width: 80%;
         display: block;
       }
 
@@ -420,8 +427,8 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
 
       .image-details {
         background-color: black;
-        width: 80%;
-        height: 80%;
+        width: 90%;
+        height: 90%;
         display: flex;
         flex-direction: row;
         justify-content: space-between;
@@ -436,8 +443,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
         width: auto;
         height: auto;
         max-width: 100%;
-        max-height: calc(70vh - 40px); /* Account for padding: 20px */
-        object-fit: cover;
+        object-fit: contain;
         margin-right: 20px;
       }
 

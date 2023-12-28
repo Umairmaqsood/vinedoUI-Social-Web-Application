@@ -681,14 +681,35 @@ export class UserHomePageComponent {
   // -------------------Get Pricing------------------
 
   getPricing() {
-    this.authensService.getCreatorPricing(this.creatorId).subscribe((res) => {
-      if (res && res.result) {
-        this.subscriptionValue = res.result.user.subscriptionPrice;
-        this.paypalValue = res.result.user.payPalEmail;
-        this.subscriptionId = res.result.user._id;
-        this.injectableService.setSubscriptionId(this.subscriptionId);
+    this.authensService.getCreatorPricing(this.creatorId).subscribe(
+      (res) => {
+        if (res && res.result && res.result.user) {
+          this.subscriptionValue = res.result.user.subscriptionPrice;
+          this.paypalValue = res.result.user.payPalEmail;
+          this.subscriptionId = res.result.user._id;
+
+          this.injectableService.subscriptionId$.subscribe(
+            (injectedSubscriptionId) => {
+              if (injectedSubscriptionId) {
+                this.subscriptionId = injectedSubscriptionId;
+              } else {
+                console.warn(
+                  'Subscription ID from injectable service is undefined or null.'
+                );
+              }
+            }
+          );
+        } else {
+          console.error('Unexpected API response:', res);
+        }
+      },
+      (error) => {
+        console.error('Error fetching creator pricing:', error);
+      },
+      () => {
+        console.log('Creator pricing API call completed.');
       }
-    });
+    );
   }
 
   // -------------Function to convert Blob to Object URL-----------------
@@ -738,7 +759,13 @@ export class UserHomePageComponent {
   getUploadedVideosThumbNails() {
     this.isAsyncCall = true;
     this.authensService
-      .getVideosThumbnailsOnUserSide(this.creatorId, this.page, this.pageSize)
+      .getVideosThumbnailsOnUserSide(
+        this.creatorId,
+        this.page,
+        this.pageSize,
+        this.userId,
+        this.subscriptionId
+      )
       .subscribe((result: any) => {
         result.result.forEach((video: any) => {
           const blob = this.base64toBlob(video.videoData, 'video/mp4');

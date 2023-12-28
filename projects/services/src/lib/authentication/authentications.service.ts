@@ -472,7 +472,9 @@ export class AuthenticationService {
   getVideosThumbnailsOnUserSide(
     creatorId: string,
     page: number,
-    pageSize: number
+    pageSize: number,
+    userId: string,
+    subscriptionId: string
   ) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
@@ -486,6 +488,8 @@ export class AuthenticationService {
       creatorId,
       page,
       pageSize,
+      userId,
+      subscriptionId,
     };
     return this.http.post<any>(
       this.backendUrl + `/content/getVideosThumbnails_User`,
