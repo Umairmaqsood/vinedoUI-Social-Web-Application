@@ -9,6 +9,8 @@ import { ActivatedRoute } from '@angular/router';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { InjectableService } from '../../InjectableService';
+import { delay, switchMap, tap } from 'rxjs/operators';
+import { timer } from 'rxjs';
 
 @Component({
   selector: 'app-user-home-page',
@@ -487,7 +489,7 @@ export class UserHomePageComponent {
   userId: any;
   paypalValue: any;
   subscriptionValue: any;
-  subscriptionId: any;
+  subscriptionUid: any;
   imageDataArray: any[] = [];
   videoDataArray: any[] = [];
   videoId: any;
@@ -515,23 +517,46 @@ export class UserHomePageComponent {
     this.bioShortened = !this.bioShortened;
   }
 
-  ngOnInit() {
-    this.route.paramMap.subscribe((params: any) => {
+  async ngOnInit() {
+    await this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
       this.userId = localStorage.getItem('_id');
     });
+
+    await this.getPricing();
     this.getPersonalInfo();
     this.getCoverPicture();
     this.getProfilePicture();
     this.fetchImages();
-    this.getPricing();
+
     this.injectableService.userId = this.userId;
     this.injectableService.creatorId = this.creatorId;
-    this.getUploadedImages();
-    this.getUploadedVideosThumbNails();
-    this.getUploadedVideosStream();
+    this.injectableService.subscriptionUid = this.subscriptionUid;
+
+    await this.getUploadedImages();
+    await this.getUploadedVideosThumbNails();
+    await this.getUploadedVideosStream();
   }
 
+  // -------------------Get Pricing------------------
+  getPricing() {
+    return this.authensService
+      .getCreatorPricing(this.creatorId)
+      .pipe(
+        tap((res: any) => {
+          console.log('Response from getCreatorPricing:', res);
+          if (res && res.result && res.result.user) {
+            this.subscriptionValue = res.result.user.subscriptionPrice;
+            this.paypalValue = res.result.user.payPalEmail;
+            this.subscriptionUid = res.result.user._id;
+            console.log('subscriptionUid:', this.subscriptionUid);
+          }
+        })
+      )
+      .toPromise();
+  }
+
+  //---------------------------------------------------------
   paypalDialog() {
     const dialog = this.dialog.open(PaypalDialogComponent, {
       width: '410px',
@@ -678,40 +703,6 @@ export class UserHomePageComponent {
       );
   }
 
-  // -------------------Get Pricing------------------
-
-  getPricing() {
-    this.authensService.getCreatorPricing(this.creatorId).subscribe(
-      (res) => {
-        if (res && res.result && res.result.user) {
-          this.subscriptionValue = res.result.user.subscriptionPrice;
-          this.paypalValue = res.result.user.payPalEmail;
-          this.subscriptionId = res.result.user._id;
-
-          this.injectableService.subscriptionId$.subscribe(
-            (injectedSubscriptionId) => {
-              if (injectedSubscriptionId) {
-                this.subscriptionId = injectedSubscriptionId;
-              } else {
-                console.warn(
-                  'Subscription ID from injectable service is undefined or null.'
-                );
-              }
-            }
-          );
-        } else {
-          console.error('Unexpected API response:', res);
-        }
-      },
-      (error) => {
-        console.error('Error fetching creator pricing:', error);
-      },
-      () => {
-        console.log('Creator pricing API call completed.');
-      }
-    );
-  }
-
   // -------------Function to convert Blob to Object URL-----------------
   blobToObjectURL(blob: Blob): string {
     return URL.createObjectURL(blob);
@@ -725,56 +716,65 @@ export class UserHomePageComponent {
 
   getUploadedImages() {
     this.isAsyncCall = true;
+    const delayTime = 500;
+
     this.authensService
       .getImagesOnUserSide(
         this.userId,
         this.creatorId,
+        this.subscriptionUid,
         this.page,
         this.pageSize
       )
+      .pipe(delay(delayTime))
       .subscribe(
         (result: any) => {
           result.result.forEach((image: any) => {
             const blob = this.base64toBlob(image.imageData, 'image/png');
             image.blobData = blob;
-            image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+            image.objectURL = this.blobToObjectURL(blob);
           });
           this.imageDataArray = result.result;
           this.isAsyncCall = false;
         },
         (error: any) => {
-          // Error handling block
           if (error.status === 404) {
             this.imageErrorMessage =
               'Subscription Not Found, Please Subscribe Now.';
             this.isAsyncCall = false;
           }
-          // Handle other error scenarios if needed
         }
       );
   }
 
   // -------------------Get Uploaded Videos thumbnails on User Side------------------
 
-  getUploadedVideosThumbNails() {
+  async getUploadedVideosThumbNails() {
     this.isAsyncCall = true;
-    this.authensService
-      .getVideosThumbnailsOnUserSide(
-        this.creatorId,
-        this.page,
-        this.pageSize,
-        this.userId,
-        this.subscriptionId
-      )
-      .subscribe((result: any) => {
-        result.result.forEach((video: any) => {
-          const blob = this.base64toBlob(video.videoData, 'video/mp4');
-          video.blobData = blob;
-          video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-        });
-        this.videoDataArray = result.result;
-        this.isAsyncCall = false;
+
+    try {
+      const result: any = await this.authensService
+        .getVideosThumbnailsOnUserSide(
+          this.creatorId,
+          this.page,
+          this.pageSize,
+          this.userId,
+          this.subscriptionUid
+        )
+        .toPromise();
+
+      result.result.forEach((video: any) => {
+        const blob = this.base64toBlob(video.videoData, 'video/mp4');
+        video.blobData = blob;
+        video.objectURL = this.blobToObjectURL(blob);
       });
+
+      this.videoDataArray = result.result;
+    } catch (error) {
+      console.error('Error fetching video thumbnails:', error);
+    } finally {
+      this.isAsyncCall = false;
+    }
   }
 
   // -------------------Get Uploaded Videos stream on User Side------------------
@@ -782,11 +782,14 @@ export class UserHomePageComponent {
   getUploadedVideosStream(): void {
     this.isAsyncCall = true;
     this.authensService
-      .getVideosStreamOnUserSide(this.videoId, this.creatorId)
+      .getVideosStreamOnUserSide(
+        this.userId,
+        this.creatorId,
+        this.subscriptionUid,
+        this.videoId
+      )
       .subscribe(
         (result: any) => {
-          // Handle the response data (video streams)
-          // Assuming your response contains an array of videos
           this.videoDataArray = result.result;
           this.isAsyncCall = false;
 

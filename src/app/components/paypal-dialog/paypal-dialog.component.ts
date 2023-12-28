@@ -80,8 +80,6 @@ for yourself."
   ],
 })
 export class PaypalDialogComponent {
-  private latestSubscriptionId = '';
-
   constructor(
     private injectableService: InjectableService,
     private authensService: AuthenticationService
@@ -90,19 +88,13 @@ export class PaypalDialogComponent {
   ngOnInit() {
     const userId = this.injectableService.userId;
     const creatorId = this.injectableService.creatorId;
-
-    this.injectableService.subscriptionId$.subscribe((subscriptionId) => {
-      console.log('SubscriptionId in ngOnInit:', subscriptionId);
-      this.latestSubscriptionId = subscriptionId || '';
-    });
-
-    console.log(userId, ' ', creatorId);
+    const subscriptionId = this.injectableService.subscriptionUid;
   }
 
   payNormalAmount() {
     const userId = this.injectableService.userId;
     const creatorId = this.injectableService.creatorId;
-    const subscriptionId = this.latestSubscriptionId;
+    const subscriptionId = this.injectableService.subscriptionUid;
     console.log('SubscriptionId in payNormalAmount:', subscriptionId);
 
     this.authensService

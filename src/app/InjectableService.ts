@@ -9,10 +9,5 @@ import { BehaviorSubject } from 'rxjs';
 export class InjectableService {
   userId: string = '';
   creatorId: string = '';
-  private subscriptionIdSource = new BehaviorSubject<string>(null!);
-  subscriptionId$ = this.subscriptionIdSource.asObservable();
-
-  setSubscriptionId(subscriptionId: string) {
-    this.subscriptionIdSource.next(subscriptionId);
-  }
+  subscriptionUid: string = '';
 }

@@ -1,8 +1,13 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable } from 'rxjs';
+import { BehaviorSubject, Observable, range } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { LoginRequestData } from 'src/app/authentication';
-import { HttpBackend, HttpClient, HttpHeaders } from '@angular/common/http';
+import {
+  HttpBackend,
+  HttpClient,
+  HttpHeaders,
+  HttpResponse,
+} from '@angular/common/http';
 import { Router } from '@angular/router';
 import { jwtDecode } from 'jwt-decode';
 
@@ -445,12 +450,14 @@ export class AuthenticationService {
   getImagesOnUserSide(
     userId: string,
     creatorId: string,
+    subscriptionId: string,
     page: number,
     pageSize: number
   ) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
+    console.log(subscriptionId, 'Is here find it');
     // Set the token in the Authorization header
     const headers = {
       headers: new HttpHeaders().set('x-access-token', userToken || ''),
@@ -459,6 +466,7 @@ export class AuthenticationService {
     const data = {
       userId,
       creatorId,
+      subscriptionId,
       page,
       pageSize,
     };
@@ -498,19 +506,32 @@ export class AuthenticationService {
     );
   }
 
-  getVideosStreamOnUserSide(videoId: string, creatorId: string) {
+  getVideosStreamOnUserSide(
+    userId: string,
+    creatorId: string,
+    subscriptionId: string,
+    videoId: string,
+    range?: string
+  ) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
-    // Set the token in the Authorization header
-    const headers = {
-      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    const headers = new HttpHeaders({
+      'x-access-token': userToken || '',
+      Range: range || '',
+    });
+
+    const data = {
+      userId,
+      creatorId,
+      subscriptionId,
+      videoId,
     };
 
-    return this.http.get<any>(
-      this.backendUrl +
-        `${this.backendUrl}/content/getVideoStream_User?videoId=${videoId}&creatorId=${creatorId}`,
-      headers
+    return this.http.post<any>(
+      this.backendUrl + `/content/getVideoStream_User`,
+      data,
+      { headers }
     );
   }
 }
