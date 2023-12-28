@@ -164,6 +164,7 @@ export class AuthenticationService {
       headers
     );
   }
+  //==============================Get Images Uploaded=====================================
 
   getUploadedImages(creatorId: string, page: number, pageSize: number) {
     const currentUser = localStorage.getItem('currentUser');
@@ -182,29 +183,26 @@ export class AuthenticationService {
   }
   //==============================Get Video Thumbnails=====================================
   getUploadedVideosThumbnails(
-    creatorId: string,
-    page: number,
-    pageSize: number
-  ): Observable<Object> {
+    videoId: string,
+    creatorId: string
+  ): Observable<Blob> {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
     const headers = new HttpHeaders().set('x-access-token', userToken || '');
-
-    const body = {
-      creatorId: creatorId,
-      page: page,
-      pageSize: pageSize,
-    };
-
     const options = {
       headers: headers,
       responseType: 'blob' as 'json',
     };
 
-    return this.http.post<Object>(
+    const data = {
+      videoId: videoId, // Ensure videoId is included in the payload
+      creatorId: creatorId,
+    };
+
+    return this.http.post<Blob>(
       this.backendUrl + `/video/getVideoThumbnails_Creator`,
-      body,
+      data,
       options
     );
   }
@@ -440,6 +438,74 @@ export class AuthenticationService {
     return this.http.post<any>(
       this.backendUrl + `/subscription/payNormalAmount`,
       data,
+      headers
+    );
+  }
+
+  getImagesOnUserSide(
+    userId: string,
+    creatorId: string,
+    page: number,
+    pageSize: number
+  ) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      userId,
+      creatorId,
+      page,
+      pageSize,
+    };
+    return this.http.post<any>(
+      this.backendUrl + `/content/getImages_User`,
+      data,
+      headers
+    );
+  }
+
+  getVideosThumbnailsOnUserSide(
+    creatorId: string,
+    page: number,
+    pageSize: number
+  ) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      creatorId,
+      page,
+      pageSize,
+    };
+    return this.http.post<any>(
+      this.backendUrl + `/content/getVideosThumbnails_User`,
+      data,
+      headers
+    );
+  }
+
+  getVideosStreamOnUserSide(videoId: string, creatorId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    return this.http.get<any>(
+      this.backendUrl +
+        `${this.backendUrl}/content/getVideoStream_User?videoId=${videoId}&creatorId=${creatorId}`,
       headers
     );
   }

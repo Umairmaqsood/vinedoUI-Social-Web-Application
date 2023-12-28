@@ -140,7 +140,20 @@ import { InjectableService } from '../../InjectableService';
 
             <h2 style="text-align:center">Pictures</h2>
 
-            <!-- <div style="margin-top:40px !important">
+            <ng-container *ngIf="imageErrorMessage">
+              <button
+                class="subscribe-btn mat-button"
+                mat-raised-button
+                (click)="paypalDialog()"
+              >
+                <mat-icon>lock</mat-icon>
+                Subscribe to see Creator Pictures
+              </button>
+            </ng-container>
+
+            <ng-container *ngIf="!imageErrorMessage">
+              <h3 style="text-align:center">Welcome</h3>
+              <!-- <div style="margin-top:40px !important">
               <div class="image-grid">
                 <div class="image-container" *ngFor="let image of images">
                   <img [src]="image.url" (click)="expandImage(image)" />
@@ -209,15 +222,7 @@ import { InjectableService } from '../../InjectableService';
                 </div>
               </div>
             </div> -->
-
-            <button
-              class="subscribe-btn mat-button"
-              mat-raised-button
-              (click)="paypalDialog()"
-            >
-              <mat-icon>lock</mat-icon>
-              Subscribe to see Creator Pictures
-            </button>
+            </ng-container>
           </mat-tab>
         </mat-tab-group>
       </div>
@@ -485,6 +490,7 @@ export class UserHomePageComponent {
   subscriptionId: any;
   imageDataArray: any[] = [];
   videoDataArray: any[] = [];
+  videoId: any;
 
   twitterUrl = 'assets/pictures/twitter.png';
   instaUrl = 'assets/pictures/insta.png';
@@ -522,7 +528,8 @@ export class UserHomePageComponent {
     this.injectableService.userId = this.userId;
     this.injectableService.creatorId = this.creatorId;
     this.getUploadedImages();
-    this.getUploadedVideos();
+    this.getUploadedVideosThumbNails();
+    this.getUploadedVideosStream();
   }
 
   paypalDialog() {
@@ -670,6 +677,9 @@ export class UserHomePageComponent {
         }
       );
   }
+
+  // -------------------Get Pricing------------------
+
   getPricing() {
     this.authensService.getCreatorPricing(this.creatorId).subscribe((res) => {
       if (res && res.result) {
@@ -681,52 +691,89 @@ export class UserHomePageComponent {
     });
   }
 
-  // Function to convert Blob to Object URL
+  // -------------Function to convert Blob to Object URL-----------------
   blobToObjectURL(blob: Blob): string {
     return URL.createObjectURL(blob);
   }
 
+  // -------------------Get Uploaded Images on User Side------------------
+
+  imageErrorMessage: any;
   page = 1;
   pageSize = 10;
 
   getUploadedImages() {
-    // this.isAsyncCall = true;
-    // this.authensService
-    //   .getUploadedImagesOnUserSide(
-    //     this.userId,
-    //     this.creatorId,
-    //     this.page,
-    //     this.pageSize
-    //   )
-    //   .subscribe((result:any) => {
-    //     result.result.forEach((image: any) => {
-    //       const blob = this.base64toBlob(image.imageData, 'image/png');
-    //       image.blobData = blob;
-    //       image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-    //     });
-    //     this.imageDataArray = result.result;
-    //     this.isAsyncCall = false;
-    //   });
+    this.isAsyncCall = true;
+    this.authensService
+      .getImagesOnUserSide(
+        this.userId,
+        this.creatorId,
+        this.page,
+        this.pageSize
+      )
+      .subscribe(
+        (result: any) => {
+          result.result.forEach((image: any) => {
+            const blob = this.base64toBlob(image.imageData, 'image/png');
+            image.blobData = blob;
+            image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+          });
+          this.imageDataArray = result.result;
+          this.isAsyncCall = false;
+        },
+        (error: any) => {
+          // Error handling block
+          if (error.status === 404) {
+            this.imageErrorMessage =
+              'Subscription Not Found, Please Subscribe Now.';
+            this.isAsyncCall = false;
+          }
+          // Handle other error scenarios if needed
+        }
+      );
   }
 
-  getUploadedVideos() {
-    // this.isAsyncCall = true;
-    // this.authensService
-    //   .getUploadedVideosOnUserSide(
-    //     this.userId,
-    //     this.creatorId,
-    //     this.page,
-    //     this.pageSize
-    //   )
-    //   .subscribe((result:any) => {
-    //     result.result.forEach((video: any) => {
-    //       const blob = this.base64toBlob(video.videoData, 'image/png');
-    //       video.blobData = blob;
-    //       video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-    //     });
-    //     this.videoDataArray = result.result;
-    //     this.isAsyncCall = false;
-    //   });
+  // -------------------Get Uploaded Videos thumbnails on User Side------------------
+
+  getUploadedVideosThumbNails() {
+    this.isAsyncCall = true;
+    this.authensService
+      .getVideosThumbnailsOnUserSide(this.creatorId, this.page, this.pageSize)
+      .subscribe((result: any) => {
+        result.result.forEach((video: any) => {
+          const blob = this.base64toBlob(video.videoData, 'video/mp4');
+          video.blobData = blob;
+          video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+        });
+        this.videoDataArray = result.result;
+        this.isAsyncCall = false;
+      });
+  }
+
+  // -------------------Get Uploaded Videos stream on User Side------------------
+
+  getUploadedVideosStream(): void {
+    this.isAsyncCall = true;
+    this.authensService
+      .getVideosStreamOnUserSide(this.videoId, this.creatorId)
+      .subscribe(
+        (result: any) => {
+          // Handle the response data (video streams)
+          // Assuming your response contains an array of videos
+          this.videoDataArray = result.result;
+          this.isAsyncCall = false;
+
+          // Process the videoDataArray if needed
+          this.videoDataArray.forEach((video: any) => {
+            // Process each video...
+          });
+        },
+        (error: any) => {
+          // Handle errors here
+          console.error('Error fetching video streams:', error);
+          this.isAsyncCall = false;
+        }
+      );
   }
 
   base64toBlob(base64Data: string, contentType: string = ''): Blob {

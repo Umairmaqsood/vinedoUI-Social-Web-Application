@@ -190,24 +190,22 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
 
               <h2 style="text-align:center">Videos</h2>
               <!-- Video Thumbnails --------------------------------------------->
-              <ng-container *ngIf="!isVideoAsyncCall">
-                <div class="video-grid">
-                  <div
-                    class="video-container"
-                    *ngFor="let video of videoDataArray"
-                  >
-                    <div class="video-wrapper" (click)="expandVideo(video)">
-                      <video
-                        [src]="video.objectURL"
-                        [title]="video.title"
-                      ></video>
-                      <div class="video-description">
-                        {{ video.description }}
-                      </div>
+              <div *ngIf="videoDataArray.length > 0">
+                <h2>Video Gallery</h2>
+                <div class="video-gallery">
+                  <div *ngFor="let video of videoDataArray">
+                    <div class="video-item">
+                      <h3>{{ video.title }}</h3>
+                      <video width="320" height="240" controls>
+                        <source [src]="video.fileName" type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
+                      <p>Description: {{ video.description }}</p>
+                      <!-- You can display other video details here -->
                     </div>
                   </div>
                 </div>
-              </ng-container>
+              </div>
               <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -617,13 +615,15 @@ export class HomePageComponent implements OnInit {
       data: {
         item,
       },
-      width: '450px',
-      height: '500px',
+      minWidth: '450px',
+      minHeight: '500px',
     });
     dialog.afterClosed().subscribe((res) => {
       if (res) {
         console.log('response of images uplaoded', res);
         this.getUploadImages();
+      } else {
+        this.isAsyncCall = false;
       }
     });
   }
@@ -635,13 +635,15 @@ export class HomePageComponent implements OnInit {
       data: {
         item,
       },
-      width: '450px',
-      height: '500px',
+      minWidth: '450px',
+      minHeight: '500px',
     });
     dialog.afterClosed().subscribe((res) => {
       if (res) {
         console.log('response of videos uplaoded', res);
         this.getUploadVideos();
+      } else {
+        this.isAsyncCall = false;
       }
     });
   }
@@ -673,6 +675,8 @@ export class HomePageComponent implements OnInit {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
         this.getPersonalInfo();
+      } else {
+        this.isAsyncCall = false;
       }
     });
   }
@@ -892,19 +896,20 @@ export class HomePageComponent implements OnInit {
   // --------------- Get uploaded videos --------------------
 
   getUploadVideos() {
-    this.isVideoAsyncCall = true;
+    this.isAsyncCall = true;
     this.authensService
-      .getUploadedVideosThumbnails(this.creatorId, this.page, this.pageSize)
+      .getUploadedVideosThumbnails(this.videoId, this.creatorId)
       .subscribe({
         next: (blob: Blob) => {
-          const videoUrl = URL.createObjectURL(blob);
-          this.videoDataArray.push(videoUrl);
+          const imageUrl = URL.createObjectURL(blob);
+          this.videoDataArray.push({ objectURL: imageUrl });
         },
         error: (error: string) => {
           console.error('Error retrieving videos:', error);
+          this.isAsyncCall = false;
         },
         complete: () => {
-          this.isVideoAsyncCall = false;
+          this.isAsyncCall = false;
         },
       } as any);
   }
