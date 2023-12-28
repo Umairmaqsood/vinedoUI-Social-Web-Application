@@ -690,45 +690,43 @@ export class UserHomePageComponent {
   pageSize = 10;
 
   getUploadedImages() {
-    this.isAsyncCall = true;
-    this.authensService
-      .getUploadedImagesOnUserSide(
-        this.userId,
-        this.creatorId,
-        this.page,
-        this.pageSize
-      )
-      .subscribe((result) => {
-        result.result.forEach((image: any) => {
-          const blob = this.base64toBlob(image.imageData, 'image/png');
-          image.blobData = blob;
-          image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-        });
-
-        this.imageDataArray = result.result;
-        this.isAsyncCall = false;
-      });
+    // this.isAsyncCall = true;
+    // this.authensService
+    //   .getUploadedImagesOnUserSide(
+    //     this.userId,
+    //     this.creatorId,
+    //     this.page,
+    //     this.pageSize
+    //   )
+    //   .subscribe((result:any) => {
+    //     result.result.forEach((image: any) => {
+    //       const blob = this.base64toBlob(image.imageData, 'image/png');
+    //       image.blobData = blob;
+    //       image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+    //     });
+    //     this.imageDataArray = result.result;
+    //     this.isAsyncCall = false;
+    //   });
   }
 
   getUploadedVideos() {
-    this.isAsyncCall = true;
-    this.authensService
-      .getUploadedVideosOnUserSide(
-        this.userId,
-        this.creatorId,
-        this.page,
-        this.pageSize
-      )
-      .subscribe((result) => {
-        result.result.forEach((video: any) => {
-          const blob = this.base64toBlob(video.videoData, 'image/png');
-          video.blobData = blob;
-          video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-        });
-
-        this.videoDataArray = result.result;
-        this.isAsyncCall = false;
-      });
+    // this.isAsyncCall = true;
+    // this.authensService
+    //   .getUploadedVideosOnUserSide(
+    //     this.userId,
+    //     this.creatorId,
+    //     this.page,
+    //     this.pageSize
+    //   )
+    //   .subscribe((result:any) => {
+    //     result.result.forEach((video: any) => {
+    //       const blob = this.base64toBlob(video.videoData, 'image/png');
+    //       video.blobData = blob;
+    //       video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+    //     });
+    //     this.videoDataArray = result.result;
+    //     this.isAsyncCall = false;
+    //   });
   }
 
   base64toBlob(base64Data: string, contentType: string = ''): Blob {

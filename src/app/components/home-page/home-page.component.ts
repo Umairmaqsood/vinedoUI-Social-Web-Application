@@ -189,6 +189,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
               </ng-template>
 
               <h2 style="text-align:center">Videos</h2>
+              <!-- Video Thumbnails --------------------------------------------->
               <ng-container *ngIf="!isVideoAsyncCall">
                 <div class="video-grid">
                   <div
@@ -207,7 +208,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                   </div>
                 </div>
               </ng-container>
-
+              <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
 
@@ -889,46 +890,42 @@ export class HomePageComponent implements OnInit {
   }
 
   // --------------- Get uploaded videos --------------------
+
   getUploadVideos() {
     this.isVideoAsyncCall = true;
     this.authensService
-      .getUploadedVideos(this.creatorId, this.page, this.pageSize)
-      .subscribe((res: any) => {
-        if (res && res.result && res.result.length > 0) {
-          res.result.forEach((video: any) => {
-            const blob = this.base64toBlob(video.videoData, 'video/mp4');
-            video.blobData = blob;
-
-            // Adjust video dimensions here (e.g., reduce height and width by 50%)
-            video.width = video.width * 0.25; // Adjust width
-            video.height = video.height * 0.25; // Adjust height
-
-            video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-          });
-          this.videoDataArray = res.result;
-        }
-        this.isVideoAsyncCall = false;
-        console.log(res, 'res of videos');
-      });
+      .getUploadedVideosThumbnails(this.creatorId, this.page, this.pageSize)
+      .subscribe({
+        next: (blob: Blob) => {
+          const videoUrl = URL.createObjectURL(blob);
+          this.videoDataArray.push(videoUrl);
+        },
+        error: (error: string) => {
+          console.error('Error retrieving videos:', error);
+        },
+        complete: () => {
+          this.isVideoAsyncCall = false;
+        },
+      } as any);
   }
 
   // --------------- Get uploaded single videos --------------------
   getUploadSingleVideos() {
-    this.isVideoAsyncCall = true;
-    this.authensService
-      .getUploadedSingleVideos(this.creatorId, this.videoId)
-      .subscribe((res: any) => {
-        if (res && res.result && res.result.length > 0) {
-          res.result.forEach((video: any) => {
-            const blob = this.base64toBlob(video.videoData, 'video/mp4');
-            video.blobData = blob;
-            video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-          });
-          this.videoDataArray = res.result;
-        }
-        this.isVideoAsyncCall = false;
-        console.log(res, 'res of single videos');
-      });
+    // this.isVideoAsyncCall = true;
+    // this.authensService
+    //   .getUploadedSingleVideos(this.creatorId, this.videoId)
+    //   .subscribe((res: any) => {
+    //     if (res && res.result && res.result.length > 0) {
+    //       res.result.forEach((video: any) => {
+    //         const blob = this.base64toBlob(video.videoData, 'video/mp4');
+    //         video.blobData = blob;
+    //         video.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+    //       });
+    //       this.videoDataArray = res.result;
+    //     }
+    //     this.isVideoAsyncCall = false;
+    //     console.log(res, 'res of single videos');
+    //   });
   }
 
   // --------------- Deleted Images Api --------------------
