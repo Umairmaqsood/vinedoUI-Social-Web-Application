@@ -75,8 +75,8 @@
             "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               "src/styles.css",
-              "./node_modules/@videogular/ngx-videogular/fonts/videogular.css",
-              "src/styles.scss"
+              "../node_modules/videogular2/fonts/videogular.css",
+              "styles.css"
             ],
             "scripts": []
           }

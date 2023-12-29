@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VgCoreModule } from '@videogular/ngx-videogular/core';
 import { VgControlsModule } from '@videogular/ngx-videogular/controls';
@@ -16,15 +16,23 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
     VgBufferingModule,
   ],
   template: `
-    <div>
-      <h3>Basic Video Player</h3>
+    <div class="video-player-container">
+      <h3>Vinedo Player</h3>
       <vg-player>
         <vg-overlay-play></vg-overlay-play>
         <vg-buffering></vg-buffering>
+
         <vg-scrub-bar>
           <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
           <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+          <div
+            class="custom-progress-bar"
+            [style.width.%]="getProgressBarWidth()"
+          >
+            <div class="progress"></div>
+          </div>
         </vg-scrub-bar>
+
         <vg-controls style="color: aliceblue;">
           <vg-play-pause></vg-play-pause>
           <vg-playback-button></vg-playback-button>
@@ -32,8 +40,7 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
             vgProperty="current"
             vgFormat="mm:ss"
           ></vg-time-display>
-          <vg-scrub-bar style="pointer-events: none;"></vg-scrub-bar>
-          <vg-time-display vgProperty="left" vgFormat="mm:ss"></vg-time-display>
+          <vg-scrub-bar style="flex: 1;"></vg-scrub-bar>
           <vg-time-display
             vgProperty="total"
             vgFormat="mm:ss"
@@ -43,6 +50,7 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
           <vg-volume></vg-volume>
           <vg-fullscreen></vg-fullscreen>
         </vg-controls>
+
         <video
           [vgMedia]="$any(media)"
           #media
@@ -64,16 +72,17 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
   `,
   styles: [
     `
-      :host {
+      .video-player-container {
         display: block;
-        width: 100%;
         max-width: 800px;
         margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
       }
 
       h3 {
         font-size: 1.5rem;
-        color: #333;
+        color: #575555;
       }
 
       vg-player {
@@ -97,9 +106,6 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
 
       vg-controls button {
         display: inline-block;
-      }
-
-      vg-controls button {
         background-color: transparent;
         border: none;
         color: #fff;
@@ -117,7 +123,29 @@ import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
         width: 100%;
         margin-top: 10px;
       }
+
+      .custom-progress-bar {
+        position: absolute;
+        height: 5px;
+        background-color: #3498db;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: #2c3e50;
+      }
     `,
   ],
 })
-export class VideoPlayerComponent {}
+export class VideoPlayerComponent {
+  @ViewChild('media') media: any;
+
+  getProgressBarWidth(): number {
+    const currentTime = this.media?.currentTime || 0;
+    const totalDuration = this.media?.duration || 1;
+    return (currentTime / totalDuration) * 100;
+  }
+}
