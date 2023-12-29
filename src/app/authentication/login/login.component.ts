@@ -158,6 +158,12 @@ export interface LoginRequestData {
       }
     `,
   ],
+  imports: [
+    CommonModule,
+    ReactiveFormsModule,
+    MaterialModule,
+    VideoPlayerComponent,
+  ],
 })
 export class LoginComponent implements OnInit {
   isAsyncCall = false;
