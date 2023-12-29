@@ -5,6 +5,7 @@ import { UserHomePageComponent } from './components/user-home-page/user-home-pag
 import { LoginComponent } from './authentication/login/login.component';
 import { ForgotPasswordComponent } from './authentication/forgot-password/forgot-password.component';
 import { SignUpComponent } from './authentication/signup/signup.component';
+import { VideoPlayerComponent } from './components/video-player/video-player.component';
 
 @Component({
   selector: 'app-root',
@@ -18,6 +19,7 @@ import { SignUpComponent } from './authentication/signup/signup.component';
     ForgotPasswordComponent,
     SignUpComponent,
     RouterModule,
+    VideoPlayerComponent,
   ],
 })
 export class AppComponent {}

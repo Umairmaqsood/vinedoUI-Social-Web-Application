@@ -23,7 +23,6 @@ export interface LoginRequestData {
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
   template: `
     <div class="container">
       <div class="content"></div>
@@ -158,12 +157,7 @@ export interface LoginRequestData {
       }
     `,
   ],
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    MaterialModule,
-    VideoPlayerComponent,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, MaterialModule],
 })
 export class LoginComponent implements OnInit {
   isAsyncCall = false;
