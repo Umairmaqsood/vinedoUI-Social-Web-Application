@@ -321,6 +321,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
 
                                 <div>
                                   <mat-icon>Comments</mat-icon>
+                                  <p>Comments</p>
                                 </div>
                               </div>
                             </div>
