@@ -190,19 +190,17 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
 
               <h2 style="text-align:center">Videos</h2>
               <div *ngIf="videoDataArray.length > 0">
-                <h2>Video Gallery</h2>
-                <div class="video-gallery">
+                <h2>Video Thumbnails</h2>
+                <div class="thumbnail-gallery">
                   <div *ngFor="let video of videoDataArray">
                     <div class="video-item">
-                      <h3>{{ video.title }}</h3>
                       <img
-                        [src]="video.thumbnailUrl"
+                        [src]="video.url"
                         alt="Thumbnail"
                         width="320"
                         height="240"
+                        (error)="handleImageError($event)"
                       />
-                      <!-- <p>Description: {{ video.description }}</p> -->
-                      <!-- You can display other video details here -->
                     </div>
                   </div>
                 </div>
@@ -212,6 +210,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                 <!-- Show a message if there are no videos -->
                 <p>No videos available.</p>
               </div>
+
               <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -639,6 +638,11 @@ export class HomePageComponent implements OnInit {
     });
   }
 
+  handleImageError(event: Event) {
+    // Log an error if the image fails to load
+    console.error('Image failed to load:', event);
+  }
+
   // --------------- Open Video Dialog  --------------------
 
   openVideoUploadDialog(item: any) {
@@ -913,17 +917,21 @@ export class HomePageComponent implements OnInit {
       .getUploadedVideosThumbnails(this.videoId, this.creatorId)
       .subscribe({
         next: (blob: Blob) => {
-          const imageUrl = URL.createObjectURL(blob);
-          this.videoDataArray.push({ objectURL: imageUrl });
+          const reader = new FileReader();
+          reader.onloadend = () => {
+            const imageUrl = reader.result as string;
+            this.videoDataArray.push({ thumbnailUrl: imageUrl });
+          };
+          reader.readAsDataURL(blob); // Convert Blob to base64
         },
-        error: (error: string) => {
+        error: (error: any) => {
           console.error('Error retrieving videos:', error);
           this.isAsyncCall = false;
         },
         complete: () => {
           this.isAsyncCall = false;
         },
-      } as any);
+      });
   }
 
   // --------------- Get uploaded single videos --------------------

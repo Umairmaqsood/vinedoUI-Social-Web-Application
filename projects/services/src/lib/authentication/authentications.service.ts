@@ -194,23 +194,27 @@ export class AuthenticationService {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
+    // Set headers with the access token
     const headers = new HttpHeaders().set('x-access-token', userToken || '');
     const options = {
       headers: headers,
-      responseType: 'blob' as 'json',
+      responseType: 'blob' as 'json', // Ensure responseType is set to 'blob'
     };
 
+    // Data payload to send to the backend
     const data = {
       videoId: videoId, // Ensure videoId is included in the payload
       creatorId: creatorId,
     };
 
+    // Make a POST request to the backend API
     return this.http.post<Blob>(
       this.backendUrl + `/video/getVideoThumbnails_Creator`,
       data,
       options
     );
   }
+
   //===========================================================================================
 
   deletedUploadedImages(imageId: string, creatorId: string) {
