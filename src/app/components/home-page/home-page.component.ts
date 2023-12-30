@@ -1,10 +1,4 @@
-import {
-  ChangeDetectorRef,
-  Component,
-  ElementRef,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MaterialModule } from 'projects/material/src/public-api';
 import { CommonModule } from '@angular/common';
@@ -20,6 +14,10 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 import { AsyncSpinnerButtonComponent } from '../async-spinner-button/async-spinner-button.component';
 import { HttpClient, HttpResponse } from '@angular/common/http';
 import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.component';
+import { VgCoreModule } from '@videogular/ngx-videogular/core';
+import { VgBufferingModule } from '@videogular/ngx-videogular/buffering';
+import { VgControlsModule } from '@videogular/ngx-videogular/controls';
+import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
 
 @Component({
   selector: 'app-home-page',
@@ -31,6 +29,10 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
     FormsModule,
     AsyncSpinnerComponent,
     AsyncSpinnerButtonComponent,
+    VgCoreModule,
+    VgControlsModule,
+    VgOverlayPlayModule,
+    VgBufferingModule,
   ],
   template: `
     <app-async-spinner *ngIf="isAsyncCall"></app-async-spinner>
@@ -211,6 +213,60 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                 <p>No videos available.</p>
               </div>
 
+              <div class="video-player-container">
+                <h3>Vinedo Player</h3>
+                <vg-player>
+                  <vg-overlay-play></vg-overlay-play>
+                  <vg-buffering></vg-buffering>
+
+                  <vg-scrub-bar>
+                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
+                    <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
+                    <div
+                      class="custom-progress-bar"
+                      [style.width.%]="getProgressBarWidth()"
+                    >
+                      <div class="progress"></div>
+                    </div>
+                  </vg-scrub-bar>
+
+                  <vg-controls style="color: aliceblue;">
+                    <vg-play-pause></vg-play-pause>
+                    <vg-playback-button></vg-playback-button>
+                    <vg-time-display
+                      vgProperty="current"
+                      vgFormat="mm:ss"
+                    ></vg-time-display>
+                    <vg-scrub-bar style="flex: 1;"></vg-scrub-bar>
+                    <vg-time-display
+                      vgProperty="total"
+                      vgFormat="mm:ss"
+                    ></vg-time-display>
+                    <vg-track-selector></vg-track-selector>
+                    <vg-mute></vg-mute>
+                    <vg-volume></vg-volume>
+                    <vg-fullscreen></vg-fullscreen>
+                  </vg-controls>
+
+                  <video
+                    [vgMedia]="$any(media)"
+                    #media
+                    id="singleVideo"
+                    preload="auto"
+                    crossorigin
+                  >
+                    <source src="../../../assets/test.mp4" type="video/mp4" />
+                    <track
+                      kind="subtitles"
+                      label="English"
+                      src="http://static.videogular.com/assets/subs/pale-blue-dot.vtt"
+                      srclang="en"
+                      default
+                    />
+                  </video>
+                </vg-player>
+              </div>
+
               <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -252,71 +308,22 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                               <i class="material-icons">close</i>
                             </div>
 
-                            <h3 class="description">
+                            <h4 class="description">
                               Description: {{ images.description }}
-                            </h3>
+                            </h4>
 
                             <div class="flex-container">
-                              <!-- Your flex container with items -->
                               <div class="flex-item">
                                 <div class="likes-section">
                                   <i class="material-icons">favorite</i>
                                   <p class="likes">Likes: {{ images.likes }}</p>
                                 </div>
 
-                                <!-- Your flex container with items -->
-
-                                <div
-                                  class="likes-section"
-                                  style="margin-top:-20px"
-                                >
-                                  <i
-                                    class="material-icons"
-                                    (click)="toggleComments()"
-                                  >
-                                    {{ showComments ? 'close' : 'comment' }}
-                                  </i>
-                                  <p
-                                    class="comments-heading"
-                                    (click)="toggleComments()"
-                                  >
-                                    Comments:
-                                    {{ images.comments.length }}
-                                  </p>
-                                </div>
-
-                                <div
-                                  class="comments-section"
-                                  *ngIf="showComments"
-                                >
-                                  <div
-                                    *ngFor="let comment of images.comments"
-                                    class="comment"
-                                  >
-                                    <div
-                                      class="comment-details"
-                                      style="display:flex; justify-content:column"
-                                    >
-                                      <i class="material-icons"
-                                        >account_circle</i
-                                      >
-                                      <span class="username"
-                                        >{{ comment.author }}:</span
-                                      >
-                                      <span class="user-comment">{{
-                                        comment.text
-                                      }}</span>
-                                    </div>
-                                  </div>
+                                <div>
+                                  <mat-icon>Comments</mat-icon>
                                 </div>
                               </div>
                             </div>
-                            <!-- <button
-                            mat-raised-button
-                            style="background-color:#2aaa8a"
-                          >
-                            Delete
-                          </button> -->
 
                             <app-async-spinner-button
                               [isAsyncCall]="isAsyncDeleteImageCall"
@@ -506,43 +513,71 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
         font-size: 24px;
         margin-right: 5px; /* Optional margin between icon and text */
       }
-      .video-grid {
-        display: flex;
-        flex-wrap: wrap;
+
+      .video-player-container {
+        display: block;
+        max-width: 800px;
+        margin: 0 auto;
+        border-radius: 10px;
+        overflow: hidden;
       }
 
-      .video-container {
-        width: 500px; /* Display four videos in a row */
-        height: 200px !important;
-        padding: 5px;
-        box-sizing: border-box;
+      h3 {
+        font-size: 1.5rem;
+        color: #575555;
       }
 
-      .video-wrapper {
+      vg-player {
         position: relative;
-        cursor: pointer;
-        height: 100%;
+        max-width: 100%;
+        margin-top: 20px;
       }
 
-      .video-description {
-        position: absolute;
-        bottom: 0;
-        left: 0;
+      video {
         width: 100%;
-        background-color: rgba(0, 0, 0, 0.5);
+      }
+
+      vg-controls {
+        background-color: rgba(0, 0, 0, 0.7);
         color: #fff;
-        padding: 8px;
-        box-sizing: border-box;
-        transition: height 0.3s ease-in-out; /* Smooth transition */
+        padding: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
       }
 
-      .video-wrapper.expanded .video-description {
-        height: 20%; /* Expand description height when video is expanded */
+      vg-controls button {
+        display: inline-block;
+        background-color: transparent;
+        border: none;
+        color: #fff;
+        cursor: pointer;
+        font-size: 16px;
+        margin: 0 5px;
+        transition: opacity 0.3s;
       }
 
-      .video-wrapper.expanded video {
-        width: 100%; /* Expand video width when video is expanded */
-        height: 80%; /* Expand video height when video is expanded */
+      vg-controls button:hover {
+        opacity: 0.7;
+      }
+
+      vg-scrub-bar {
+        width: 100%;
+        margin-top: 10px;
+      }
+
+      .custom-progress-bar {
+        position: absolute;
+        height: 5px;
+        background-color: #3498db;
+        top: 0;
+        left: 0;
+        pointer-events: none;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: #2c3e50;
       }
     `,
   ],
@@ -552,13 +587,14 @@ export class HomePageComponent implements OnInit {
   videoDataArray: any[] = [];
   expandedImage: any = null;
   expandedVideo: any = null;
-  ImageId: any;
+  imageId: any;
   videoId: any;
   isAsyncCall = false;
   isImageAsyncCall = false;
   isVideoAsyncCall = false;
   isAsyncDeleteImageCall = false;
   creatorId: any;
+  userComment: any;
   // --------------- Profile details  --------------------
   userId: any;
   location: any;
@@ -569,6 +605,13 @@ export class HomePageComponent implements OnInit {
   showReadMore = false;
   payPalEmail: any;
   subscriptionPrice: any;
+  @ViewChild('media') media: any;
+
+  getProgressBarWidth(): number {
+    const currentTime = this.media?.currentTime || 0;
+    const totalDuration = this.media?.duration || 1;
+    return (currentTime / totalDuration) * 100;
+  }
 
   expandVideo(video: any) {
     this.expandedVideo = this.expandedVideo === video ? null : video;
@@ -607,13 +650,14 @@ export class HomePageComponent implements OnInit {
     });
 
     this.getUploadImages();
-    // this.postCommentsOnImages();
+    this.postCommentsOnImages(this.userComment, this.imageId, this.creatorId);
     this.getUploadVideosThumbnails();
     this.getPersonalInfo();
     this.getProfilePicture();
     this.getCoverPicture();
-    this.getUploadImagesWithComments();
+    this.getCommentOnImages(this.imageId);
 
+    // this.getUploadImagesWithComments();
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -905,6 +949,12 @@ export class HomePageComponent implements OnInit {
 
         this.imageDataArray = result.result;
         console.log(this.imageDataArray, 'imagedataarray');
+
+        // Retrieve comments for each image
+        this.imageDataArray.forEach((image: any) => {
+          this.getCommentOnImages(image.imageId);
+        });
+
         this.isImageAsyncCall = false;
       });
   }
@@ -1088,83 +1138,21 @@ export class HomePageComponent implements OnInit {
     this.snackbar.open(`AN ERROR OCCURED`, 'X', config);
   }
 
-  userComment!: string;
-  // postCommentsOnImages() {
-  //   this.authensService
-  //     .postCommentsOnImages(this.userComment, this.ImageId, this.creatorId)
-  //     .subscribe((res) => {
-  //       console.log(res, 'responseofpostcomments');
-  //     });
-  // }
-
-  // getCommentOnImages() {
-  //   this.authensService
-  //     .getCommentsOnImages('658dd8093401ec6665068518', this.page, this.pageSize)
-  //     .subscribe((res) => {
-  //       console.log(res, 'responseofgetcomments');
-  //     });
-  // }
-
-  getUploadImagesWithComments() {
-    this.isImageAsyncCall = true;
+  postCommentsOnImages(userComment: string, imageId: string, userId: string) {
     this.authensService
-      .getUploadedImages(this.creatorId, this.page, this.pageSize)
-      .subscribe((result: any) => {
-        const imageIds = result.result.map((image: any) => image.imageid); // Extract image ids
+      .postCommentsOnImages(userComment, imageId, userId)
+      .subscribe((res) => {
+        console.log(res, 'responseofpostcomments');
+      });
+  }
 
-        // Function to get comments for a specific image ID
-        const getCommentOnImage = (imageId: string) => {
-          this.authensService
-            .getCommentsOnImages(imageId, this.page, this.pageSize)
-            .subscribe((res) => {
-              const imageToUpdate = this.imageDataArray.find(
-                (image) => image.imageid === imageId
-              );
-              if (imageToUpdate) {
-                imageToUpdate.comments = res; // Assign comments to the respective image
-              }
-            });
-        };
-
-        // Function to post comments for a specific image ID
-        const postCommentOnImage = (
-          userComment: string,
-          imageId: string,
-          userId: string
-        ) => {
-          this.authensService
-            .postCommentsOnImages(userComment, imageId, userId)
-            .subscribe(
-              (res) => {
-                console.log('Comment posted successfully:', res);
-                // Optionally update the UI or perform additional actions upon successful comment post.
-              },
-              (error) => {
-                console.error('Error posting comment:', error);
-                // Handle errors if the comment post fails.
-              }
-            );
-        };
-
-        // Load comments for each image and post comments (for demonstration purposes, adjust as per your application flow)
-        imageIds.forEach((imageId: string) => {
-          getCommentOnImage(imageId); // Load comments for the image
-
-          // For example, post a comment for each image (you may want to trigger this based on user actions)
-          const userComment = this.userComment; // Replace this with the actual user's comment
-          const userId = this.creatorId; // Replace this with the actual user's ID
-          postCommentOnImage(userComment, imageId, userId);
-        });
-
-        // Convert Base64 strings to Blobs for each image
-        result.result.forEach((image: any) => {
-          const blob = this.base64toBlob(image.imageData, 'image/png');
-          image.blobData = blob;
-          image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
-        });
-
-        this.imageDataArray = result.result;
-        this.isImageAsyncCall = false;
+  getCommentOnImages(imageId: string) {
+    this.isAsyncCall = false;
+    this.authensService
+      .getCommentsOnImages(imageId, this.page, this.pageSize)
+      .subscribe((res) => {
+        console.log(res, 'responseofgetcomments');
+        this.isAsyncCall = false;
       });
   }
 }
