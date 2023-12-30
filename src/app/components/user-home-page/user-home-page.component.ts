@@ -517,13 +517,13 @@ export class UserHomePageComponent {
     this.bioShortened = !this.bioShortened;
   }
 
-  async ngOnInit() {
-    await this.route.paramMap.subscribe((params: any) => {
+  ngOnInit() {
+    this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
       this.userId = localStorage.getItem('_id');
     });
 
-    await this.getPricing();
+    this.getPricing();
     this.getPersonalInfo();
     this.getCoverPicture();
     this.getProfilePicture();
@@ -533,9 +533,9 @@ export class UserHomePageComponent {
     this.injectableService.creatorId = this.creatorId;
     this.injectableService.subscriptionUid = this.subscriptionUid;
 
-    await this.getUploadedImages();
-    await this.getUploadedVideosThumbNails();
-    await this.getUploadedVideosStream();
+    this.getUploadedImages();
+    this.getUploadedVideosThumbNails();
+    this.getUploadedVideosStream();
   }
 
   // -------------------Get Pricing------------------

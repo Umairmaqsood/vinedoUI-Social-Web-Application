@@ -28,14 +28,14 @@ import { ReactiveFormsModule } from '@angular/forms';
           </div>
           <div fxHide.lt-sm fxShow.gt-sm class="spacer"></div>
           <div class="search-container">
-            <mat-form-field class="search-field">
+            <mat-form-field appearance="outline">
+              <mat-label>Search Creator</mat-label>
               <input
                 matInput
-                placeholder="Search"
                 [formControl]="searchControl"
                 [matAutocomplete]="auto"
               />
-              <mat-icon matSuffix>search</mat-icon>
+              <mat-icon style="color:white" matSuffix>search</mat-icon>
               <mat-autocomplete #auto="matAutocomplete">
                 <mat-option
                   *ngFor="let creator of filteredCreators"

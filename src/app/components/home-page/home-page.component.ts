@@ -4,7 +4,12 @@ import { MaterialModule } from 'projects/material/src/public-api';
 import { CommonModule } from '@angular/common';
 import { EditProfileDialogComponent } from '../edit-profile-dialog/edit-profile-dialog.component';
 import { NotificationsDialogComponent } from '../notifications-dialog/notifications-dialog.component';
-import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import {
+  FormBuilder,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { UploadImageDialogComponent } from '../upload-image-dialog/upload-image-dialog.component';
 import { ActivatedRoute } from '@angular/router';
 import { AsyncSpinnerComponent } from '../async-spinner/async-spinner.component';
@@ -308,9 +313,9 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                               <i class="material-icons">close</i>
                             </div>
 
-                            <h4 class="description">
+                            <label style="background-color:#2aaa8a">
                               Description: {{ images.description }}
-                            </h4>
+                            </label>
 
                             <div class="flex-container">
                               <div class="flex-item">
@@ -319,20 +324,51 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                                   <p class="likes">Likes: {{ images.likes }}</p>
                                 </div>
 
-                                <div>
-                                  <mat-icon>Comments</mat-icon>
-                                  <p>Comments</p>
+                                <div *ngFor="let comment of images.comments">
+                                  <div class="flex">
+                                    <mat-icon>person_pin</mat-icon>
+                                    <b>{{ comment.userIdName }}</b>
+                                  </div>
+                                  <label style="margin-left:22px">
+                                    {{ comment.comment }}
+                                  </label>
                                 </div>
+
+                                <form [formGroup]="postComments">
+                                  <div class="flex gap-10">
+                                    <mat-form-field appearance="outline">
+                                      <mat-label>Comment</mat-label>
+
+                                      <input
+                                        matInput
+                                        formControlName="inputComment"
+                                        placeholder="Add Comment"
+                                      />
+                                    </mat-form-field>
+
+                                    <mat-icon
+                                      class="m-t-10"
+                                      (click)="postComment(images.imageId)"
+                                    >
+                                      send
+                                    </mat-icon>
+                                  </div>
+                                </form>
                               </div>
                             </div>
 
-                            <app-async-spinner-button
-                              [isAsyncCall]="isAsyncDeleteImageCall"
-                              (click)="
-                                deleteUploadedImages(images.imageId, creatorId)
-                              "
-                              >Delete</app-async-spinner-button
-                            >
+                            <div>
+                              <app-async-spinner-button
+                                [isAsyncCall]="isAsyncDeleteImageCall"
+                                (click)="
+                                  deleteUploadedImages(
+                                    images.imageId,
+                                    creatorId
+                                  )
+                                "
+                                >Delete Picture</app-async-spinner-button
+                              >
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -405,7 +441,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
       }
 
       .image-container img {
-        min-width: 80%;
+        min-width: 70%;
         display: block;
       }
 
@@ -606,6 +642,9 @@ export class HomePageComponent implements OnInit {
   showReadMore = false;
   payPalEmail: any;
   subscriptionPrice: any;
+  userIdName: any;
+  comment: any;
+  uid: any;
   @ViewChild('media') media: any;
 
   getProgressBarWidth(): number {
@@ -637,21 +676,31 @@ export class HomePageComponent implements OnInit {
     private route: ActivatedRoute,
     private authensService: AuthenticationService,
     private snackbar: MatSnackBar,
-    private http: HttpClient
+    private http: HttpClient,
+    private formBuilder: FormBuilder
   ) {}
+
+  postComments = this.formBuilder.group({
+    inputComment: [undefined as any, Validators.required],
+  });
+
+  get inputComment() {
+    return this.postComments.controls.inputComment;
+  }
 
   toggleBio() {
     this.bioShortened = !this.bioShortened;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     // Retrieve the userId and location from the URL query parameters
     this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
     });
 
+    this.uid = await localStorage.getItem('_id');
+
     this.getUploadImages();
-    this.postCommentsOnImages(this.userComment, this.imageId, this.creatorId);
     this.getUploadVideosThumbnails();
     this.getPersonalInfo();
     this.getProfilePicture();
@@ -946,16 +995,22 @@ export class HomePageComponent implements OnInit {
           const blob = this.base64toBlob(image.imageData, 'image/png');
           image.blobData = blob;
           image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+
+          // Fetch comments for each image
+          this.authensService
+            .getCommentsOnImages(image.imageId, this.page, this.pageSize)
+            .subscribe(
+              (commentResult: any) => {
+                image.comments = commentResult.data.comments;
+              },
+              (error) => {
+                console.error('Error fetching comments:', error);
+              }
+            );
         });
 
         this.imageDataArray = result.result;
         console.log(this.imageDataArray, 'imagedataarray');
-
-        // Retrieve comments for each image
-        this.imageDataArray.forEach((image: any) => {
-          this.getCommentOnImages(image.imageId);
-        });
-
         this.isImageAsyncCall = false;
       });
   }
@@ -1139,14 +1194,6 @@ export class HomePageComponent implements OnInit {
     this.snackbar.open(`AN ERROR OCCURED`, 'X', config);
   }
 
-  postCommentsOnImages(userComment: string, imageId: string, userId: string) {
-    this.authensService
-      .postCommentsOnImages(userComment, imageId, userId)
-      .subscribe((res) => {
-        console.log(res, 'responseofpostcomments');
-      });
-  }
-
   getCommentOnImages(imageId: string) {
     this.isAsyncCall = false;
     this.authensService
@@ -1155,5 +1202,31 @@ export class HomePageComponent implements OnInit {
         console.log(res, 'responseofgetcomments');
         this.isAsyncCall = false;
       });
+  }
+
+  // Post Comment
+
+  postComment(imageId: string) {
+    const data = {
+      userComment: this.inputComment.value,
+    };
+    this.isAsyncCall = false;
+    this.authensService
+      .postCommentsOnImages(data.userComment, imageId, this.uid)
+      .subscribe((res) => {
+        if (res) {
+          this.getCommentOnImages(imageId);
+          this.commentSnackBar();
+          this.isAsyncCall = false;
+        } else {
+          this.isAsyncCall = false;
+        }
+      });
+  }
+
+  commentSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`COMMENTS POSTED SUCCESSFULY`, 'X', config);
   }
 }
