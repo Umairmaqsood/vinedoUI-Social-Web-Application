@@ -534,4 +534,48 @@ export class AuthenticationService {
       { headers }
     );
   }
+
+  postCommentsOnImages(userComment: string, imageId: string, userId: string) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      userComment,
+      imageId,
+      userId,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + `/image/postComments`,
+      data,
+      headers
+    );
+  }
+
+  getCommentsOnImages(imageId: any, page: number, pageSize: number) {
+    const currentUser = localStorage.getItem('currentUser');
+    const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
+
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
+    };
+
+    const data = {
+      imageId,
+      page,
+      pageSize,
+    };
+
+    return this.http.post<any>(
+      this.backendUrl + `/images/getAllComments`,
+      data,
+      headers
+    );
+  }
 }

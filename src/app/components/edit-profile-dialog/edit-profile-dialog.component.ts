@@ -165,6 +165,9 @@ export class EditProfileDialogComponent {
             this.updateInfoSnackBar();
             this.isAsyncCall = false;
             this.matDialogRef.close(res);
+          } else {
+            this.isAsyncCall = false;
+            this.error();
           }
         });
     }
@@ -176,5 +179,10 @@ export class EditProfileDialogComponent {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(`PERSONAL INFO UPDATED SUCCESSFULLY`, 'X', config);
+  }
+  error() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`AN ERROR OCCURED`, 'X', config);
   }
 }

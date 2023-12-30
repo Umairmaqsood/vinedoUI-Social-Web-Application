@@ -201,7 +201,7 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                         width="320"
                         height="240"
                       />
-                      <p>Description: {{ video.description }}</p>
+                      <!-- <p>Description: {{ video.description }}</p> -->
                       <!-- You can display other video details here -->
                     </div>
                   </div>
@@ -332,6 +332,10 @@ import { CreatorPricingComponent } from '../creator-pricing/creator-pricing.comp
                     </div>
                   </div>
                 </div>
+                <!-- <div *ngIf="imageDataArray.length === 0">
+                
+                  <p>No Images available.</p>
+                </div> -->
               </ng-container>
               <app-async-spinner *ngIf="isImageAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -590,7 +594,6 @@ export class HomePageComponent implements OnInit {
     private route: ActivatedRoute,
     private authensService: AuthenticationService,
     private snackbar: MatSnackBar,
-    private cdr: ChangeDetectorRef,
     private http: HttpClient
   ) {}
 
@@ -605,11 +608,13 @@ export class HomePageComponent implements OnInit {
     });
 
     this.getUploadImages();
-    this.getUploadVideos();
+    // this.postCommentsOnImages();
+    this.getUploadVideosThumbnails();
     this.getPersonalInfo();
     this.getProfilePicture();
     this.getCoverPicture();
-    this.getUploadSingleVideos();
+    this.getUploadImagesWithComments();
+
     // this.deleteUploadedImages();
     // this.deleteUploadedVideos();
   }
@@ -647,7 +652,7 @@ export class HomePageComponent implements OnInit {
     dialog.afterClosed().subscribe((res) => {
       if (res) {
         console.log('response of videos uplaoded', res);
-        this.getUploadVideos();
+        this.getUploadVideosThumbnails();
       } else {
         this.isAsyncCall = false;
       }
@@ -895,13 +900,14 @@ export class HomePageComponent implements OnInit {
         });
 
         this.imageDataArray = result.result;
+        console.log(this.imageDataArray, 'imagedataarray');
         this.isImageAsyncCall = false;
       });
   }
 
   // --------------- Get uploaded videos --------------------
 
-  getUploadVideos() {
+  getUploadVideosThumbnails() {
     this.isAsyncCall = true;
     this.authensService
       .getUploadedVideosThumbnails(this.videoId, this.creatorId)
@@ -951,19 +957,26 @@ export class HomePageComponent implements OnInit {
           this.imageDeleteSnackBar();
           this.isAsyncDeleteImageCall = false;
           this.expandImage(true);
+        } else {
+          this.isAsyncCall = false;
+          this.error();
         }
       });
   }
 
   // --------------- Deleted Videos Api --------------------
 
-  deleteUploadedVideos() {
+  deleteUploadedVideos(videoId: any, creatorId: any) {
     this.isAsyncCall = true;
     this.authensService
-      .deletedUploadedVideos(this.creatorId, this.videoId)
+      .deletedUploadedVideos(videoId, creatorId)
       .subscribe((res: any) => {
         if (res) {
-          this.imageDataArray = res;
+          this.videoDataArray = res;
+          this.isAsyncCall = false;
+          this.videoDeleteSnackBar();
+        } else {
+          this.ErrorInDeletingVideos();
           this.isAsyncCall = false;
         }
       });
@@ -1027,6 +1040,11 @@ export class HomePageComponent implements OnInit {
     config.duration = 5000;
     this.snackbar.open(`IMAGE DELETED SUCCESSFULY`, 'X', config);
   }
+  videoDeleteSnackBar() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`VIDEO DELETED SUCCESSFULY`, 'X', config);
+  }
 
   //-------------  Profile Image Snackbar  ---------------
 
@@ -1049,5 +1067,96 @@ export class HomePageComponent implements OnInit {
     const config = new MatSnackBarConfig();
     config.duration = 5000;
     this.snackbar.open(`ERROR IN UPLOADING FILE`, 'X', config);
+  }
+  ErrorInDeletingVideos() {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`AN ERROR OCCURED DURING DELETING`, 'X', config);
+  }
+
+  error(): void {
+    const config = new MatSnackBarConfig();
+    config.duration = 5000;
+    this.snackbar.open(`AN ERROR OCCURED`, 'X', config);
+  }
+
+  userComment!: string;
+  // postCommentsOnImages() {
+  //   this.authensService
+  //     .postCommentsOnImages(this.userComment, this.ImageId, this.creatorId)
+  //     .subscribe((res) => {
+  //       console.log(res, 'responseofpostcomments');
+  //     });
+  // }
+
+  // getCommentOnImages() {
+  //   this.authensService
+  //     .getCommentsOnImages('658dd8093401ec6665068518', this.page, this.pageSize)
+  //     .subscribe((res) => {
+  //       console.log(res, 'responseofgetcomments');
+  //     });
+  // }
+
+  getUploadImagesWithComments() {
+    this.isImageAsyncCall = true;
+    this.authensService
+      .getUploadedImages(this.creatorId, this.page, this.pageSize)
+      .subscribe((result: any) => {
+        const imageIds = result.result.map((image: any) => image.imageid); // Extract image ids
+
+        // Function to get comments for a specific image ID
+        const getCommentOnImage = (imageId: string) => {
+          this.authensService
+            .getCommentsOnImages(imageId, this.page, this.pageSize)
+            .subscribe((res) => {
+              const imageToUpdate = this.imageDataArray.find(
+                (image) => image.imageid === imageId
+              );
+              if (imageToUpdate) {
+                imageToUpdate.comments = res; // Assign comments to the respective image
+              }
+            });
+        };
+
+        // Function to post comments for a specific image ID
+        const postCommentOnImage = (
+          userComment: string,
+          imageId: string,
+          userId: string
+        ) => {
+          this.authensService
+            .postCommentsOnImages(userComment, imageId, userId)
+            .subscribe(
+              (res) => {
+                console.log('Comment posted successfully:', res);
+                // Optionally update the UI or perform additional actions upon successful comment post.
+              },
+              (error) => {
+                console.error('Error posting comment:', error);
+                // Handle errors if the comment post fails.
+              }
+            );
+        };
+
+        // Load comments for each image and post comments (for demonstration purposes, adjust as per your application flow)
+        imageIds.forEach((imageId: string) => {
+          getCommentOnImage(imageId); // Load comments for the image
+
+          // For example, post a comment for each image (you may want to trigger this based on user actions)
+          const userComment = this.userComment; // Replace this with the actual user's comment
+          const userId = this.creatorId; // Replace this with the actual user's ID
+          postCommentOnImage(userComment, imageId, userId);
+        });
+
+        // Convert Base64 strings to Blobs for each image
+        result.result.forEach((image: any) => {
+          const blob = this.base64toBlob(image.imageData, 'image/png');
+          image.blobData = blob;
+          image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+        });
+
+        this.imageDataArray = result.result;
+        this.isImageAsyncCall = false;
+      });
   }
 }
