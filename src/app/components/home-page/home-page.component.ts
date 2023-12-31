@@ -272,14 +272,19 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                                 </div>
 
                                 <ng-container *ngIf="!iscommentsGet">
-                                  <div *ngFor="let comment of images.comments">
-                                    <div class="flex">
-                                      <mat-icon>person_pin</mat-icon>
-                                      <b>{{ comment.userIdName }}</b>
+                                  <div class="comments-container">
+                                    <div
+                                      *ngFor="let comment of images.comments"
+                                      class="comment-item"
+                                    >
+                                      <div class="flex">
+                                        <mat-icon>person_pin</mat-icon>
+                                        <b>{{ comment.userIdName }}</b>
+                                      </div>
+                                      <label style="margin-left: 22px">
+                                        {{ comment.comment }}
+                                      </label>
                                     </div>
-                                    <label style="margin-left: 22px">
-                                      {{ comment.comment }}
-                                    </label>
                                   </div>
                                 </ng-container>
 
@@ -498,6 +503,11 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
       .comments-section .material-icons {
         font-size: 24px;
         margin-right: 5px; /* Optional margin between icon and text */
+      }
+      .comments-container {
+        max-height: 220px; /* Set the desired maximum height for the comments container */
+        overflow-y: auto; /* Add a vertical scrollbar when content exceeds container height */
+        /* Add any other desired styles for the container */
       }
     `,
   ],
