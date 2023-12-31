@@ -49,7 +49,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 
           <!-- Logout Button -->
           <div>
-            <button mat-icon-button (click)="logout()">
+            <button style="cursor:pointer" mat-icon-button (click)="logout()">
               <mat-icon style="color:white">logout</mat-icon>
             </button>
           </div>

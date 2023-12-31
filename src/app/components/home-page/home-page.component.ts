@@ -218,60 +218,6 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                 <p>No videos available.</p>
               </div>
 
-              <div class="video-player-container">
-                <h3>Vinedo Player</h3>
-                <vg-player>
-                  <vg-overlay-play></vg-overlay-play>
-                  <vg-buffering></vg-buffering>
-
-                  <vg-scrub-bar>
-                    <vg-scrub-bar-current-time></vg-scrub-bar-current-time>
-                    <vg-scrub-bar-buffering-time></vg-scrub-bar-buffering-time>
-                    <div
-                      class="custom-progress-bar"
-                      [style.width.%]="getProgressBarWidth()"
-                    >
-                      <div class="progress"></div>
-                    </div>
-                  </vg-scrub-bar>
-
-                  <vg-controls style="color: aliceblue;">
-                    <vg-play-pause></vg-play-pause>
-                    <vg-playback-button></vg-playback-button>
-                    <vg-time-display
-                      vgProperty="current"
-                      vgFormat="mm:ss"
-                    ></vg-time-display>
-                    <vg-scrub-bar style="flex: 1;"></vg-scrub-bar>
-                    <vg-time-display
-                      vgProperty="total"
-                      vgFormat="mm:ss"
-                    ></vg-time-display>
-                    <vg-track-selector></vg-track-selector>
-                    <vg-mute></vg-mute>
-                    <vg-volume></vg-volume>
-                    <vg-fullscreen></vg-fullscreen>
-                  </vg-controls>
-
-                  <video
-                    [vgMedia]="$any(media)"
-                    #media
-                    id="singleVideo"
-                    preload="auto"
-                    crossorigin
-                  >
-                    <source src="../../../assets/test.mp4" type="video/mp4" />
-                    <track
-                      kind="subtitles"
-                      label="English"
-                      src="http://static.videogular.com/assets/subs/pale-blue-dot.vtt"
-                      srclang="en"
-                      default
-                    />
-                  </video>
-                </vg-player>
-              </div>
-
               <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -313,7 +259,9 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                               <i class="material-icons">close</i>
                             </div>
 
-                            <label style="background-color:#2aaa8a">
+                            <label
+                              style="background-color:#2aaa8a; padding:10px;"
+                            >
                               Description: {{ images.description }}
                             </label>
 
@@ -324,20 +272,26 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                                   <p class="likes">Likes: {{ images.likes }}</p>
                                 </div>
 
-                                <div *ngFor="let comment of images.comments">
-                                  <div class="flex">
-                                    <mat-icon>person_pin</mat-icon>
-                                    <b>{{ comment.userIdName }}</b>
+                                <ng-container *ngIf="!iscommentsGet">
+                                  <div *ngFor="let comment of images.comments">
+                                    <div class="flex">
+                                      <mat-icon>person_pin</mat-icon>
+                                      <b>{{ comment.userIdName }}</b>
+                                    </div>
+                                    <label style="margin-left: 22px">
+                                      {{ comment.comment }}
+                                    </label>
                                   </div>
-                                  <label style="margin-left:22px">
-                                    {{ comment.comment }}
-                                  </label>
-                                </div>
+                                </ng-container>
+
+                                <app-async-spinner
+                                  *ngIf="iscommentsGet"
+                                ></app-async-spinner>
 
                                 <form [formGroup]="postComments">
-                                  <div class="flex gap-10">
+                                  <div class="flex gap-10 m-t-5">
                                     <mat-form-field appearance="outline">
-                                      <mat-label>Comment</mat-label>
+                                      <mat-label>Comments</mat-label>
 
                                       <input
                                         matInput
@@ -347,7 +301,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                                     </mat-form-field>
 
                                     <mat-icon
-                                      class="m-t-10"
+                                      class="m-t-15"
                                       (click)="postComment(images.imageId)"
                                     >
                                       send
@@ -375,10 +329,6 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                     </div>
                   </div>
                 </div>
-                <!-- <div *ngIf="imageDataArray.length === 0">
-                
-                  <p>No Images available.</p>
-                </div> -->
               </ng-container>
               <app-async-spinner *ngIf="isImageAsyncCall"></app-async-spinner>
             </mat-tab>
@@ -550,76 +500,11 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
         font-size: 24px;
         margin-right: 5px; /* Optional margin between icon and text */
       }
-
-      .video-player-container {
-        display: block;
-        max-width: 800px;
-        margin: 0 auto;
-        border-radius: 10px;
-        overflow: hidden;
-      }
-
-      h3 {
-        font-size: 1.5rem;
-        color: #575555;
-      }
-
-      vg-player {
-        position: relative;
-        max-width: 100%;
-        margin-top: 20px;
-      }
-
-      video {
-        width: 100%;
-      }
-
-      vg-controls {
-        background-color: rgba(0, 0, 0, 0.7);
-        color: #fff;
-        padding: 10px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      vg-controls button {
-        display: inline-block;
-        background-color: transparent;
-        border: none;
-        color: #fff;
-        cursor: pointer;
-        font-size: 16px;
-        margin: 0 5px;
-        transition: opacity 0.3s;
-      }
-
-      vg-controls button:hover {
-        opacity: 0.7;
-      }
-
-      vg-scrub-bar {
-        width: 100%;
-        margin-top: 10px;
-      }
-
-      .custom-progress-bar {
-        position: absolute;
-        height: 5px;
-        background-color: #3498db;
-        top: 0;
-        left: 0;
-        pointer-events: none;
-      }
-
-      .progress {
-        height: 100%;
-        background-color: #2c3e50;
-      }
     `,
   ],
 })
 export class HomePageComponent implements OnInit {
+  showCommentsSection = false;
   imageDataArray: any[] = [];
   videoDataArray: any[] = [];
   expandedImage: any = null;
@@ -630,6 +515,7 @@ export class HomePageComponent implements OnInit {
   isImageAsyncCall = false;
   isVideoAsyncCall = false;
   isAsyncDeleteImageCall = false;
+  iscommentsGet = false;
   creatorId: any;
   userComment: any;
   // --------------- Profile details  --------------------
@@ -645,6 +531,7 @@ export class HomePageComponent implements OnInit {
   userIdName: any;
   comment: any;
   uid: any;
+  isCommentsPosted = false;
   @ViewChild('media') media: any;
 
   getProgressBarWidth(): number {
@@ -995,23 +882,18 @@ export class HomePageComponent implements OnInit {
           const blob = this.base64toBlob(image.imageData, 'image/png');
           image.blobData = blob;
           image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+          this.imageDataArray = result.result;
+          console.log(this.imageDataArray, 'imagedataarray');
+          this.isImageAsyncCall = false;
 
           // Fetch comments for each image
           this.authensService
             .getCommentsOnImages(image.imageId, this.page, this.pageSize)
-            .subscribe(
-              (commentResult: any) => {
-                image.comments = commentResult.data.comments;
-              },
-              (error) => {
-                console.error('Error fetching comments:', error);
-              }
-            );
+            .subscribe((commentResult: any) => {
+              image.comments = commentResult.data.comments;
+              this.isAsyncCall = false;
+            });
         });
-
-        this.imageDataArray = result.result;
-        console.log(this.imageDataArray, 'imagedataarray');
-        this.isImageAsyncCall = false;
       });
   }
 
@@ -1195,12 +1077,12 @@ export class HomePageComponent implements OnInit {
   }
 
   getCommentOnImages(imageId: string) {
-    this.isAsyncCall = false;
+    this.iscommentsGet = false;
     this.authensService
       .getCommentsOnImages(imageId, this.page, this.pageSize)
       .subscribe((res) => {
         console.log(res, 'responseofgetcomments');
-        this.isAsyncCall = false;
+        this.iscommentsGet = false;
       });
   }
 
@@ -1210,16 +1092,18 @@ export class HomePageComponent implements OnInit {
     const data = {
       userComment: this.inputComment.value,
     };
-    this.isAsyncCall = false;
+    this.isCommentsPosted = true;
     this.authensService
       .postCommentsOnImages(data.userComment, imageId, this.uid)
       .subscribe((res) => {
         if (res) {
           this.getCommentOnImages(imageId);
           this.commentSnackBar();
-          this.isAsyncCall = false;
+          // this.getUploadImages();
+          this.isCommentsPosted = false;
+          // this.expandImage(true);
         } else {
-          this.isAsyncCall = false;
+          this.isCommentsPosted = false;
         }
       });
   }
