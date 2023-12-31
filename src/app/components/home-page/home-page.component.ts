@@ -206,7 +206,6 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                         alt="Thumbnail"
                         width="320"
                         height="240"
-                        (error)="handleImageError($event)"
                       />
                     </div>
                   </div>
@@ -260,7 +259,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                             </div>
 
                             <label
-                              style="background-color:#2aaa8a; padding:10px;"
+                              style="background-color:#2aaa8a; border-radius:10px;padding:10px;"
                             >
                               Description: {{ images.description }}
                             </label>
@@ -311,7 +310,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                               </div>
                             </div>
 
-                            <div>
+                            <div style="width:50%">
                               <app-async-spinner-button
                                 [isAsyncCall]="isAsyncDeleteImageCall"
                                 (click)="
@@ -504,7 +503,6 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
   ],
 })
 export class HomePageComponent implements OnInit {
-  showCommentsSection = false;
   imageDataArray: any[] = [];
   videoDataArray: any[] = [];
   expandedImage: any = null;
@@ -579,13 +577,13 @@ export class HomePageComponent implements OnInit {
     this.bioShortened = !this.bioShortened;
   }
 
-  async ngOnInit() {
+  ngOnInit() {
     // Retrieve the userId and location from the URL query parameters
     this.route.paramMap.subscribe((params: any) => {
       this.creatorId = params.get('userId') || '';
     });
 
-    this.uid = await localStorage.getItem('_id');
+    this.uid = localStorage.getItem('_id');
 
     this.getUploadImages();
     this.getUploadVideosThumbnails();
@@ -617,11 +615,6 @@ export class HomePageComponent implements OnInit {
         this.isAsyncCall = false;
       }
     });
-  }
-
-  handleImageError(event: Event) {
-    // Log an error if the image fails to load
-    console.error('Image failed to load:', event);
   }
 
   // --------------- Open Video Dialog  --------------------
@@ -883,7 +876,6 @@ export class HomePageComponent implements OnInit {
           image.blobData = blob;
           image.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
           this.imageDataArray = result.result;
-          console.log(this.imageDataArray, 'imagedataarray');
           this.isImageAsyncCall = false;
 
           // Fetch comments for each image
@@ -913,7 +905,6 @@ export class HomePageComponent implements OnInit {
           reader.readAsDataURL(blob); // Convert Blob to base64
         },
         error: (error: any) => {
-          console.error('Error retrieving videos:', error);
           this.isAsyncCall = false;
         },
         complete: () => {
@@ -1081,7 +1072,6 @@ export class HomePageComponent implements OnInit {
     this.authensService
       .getCommentsOnImages(imageId, this.page, this.pageSize)
       .subscribe((res) => {
-        console.log(res, 'responseofgetcomments');
         this.iscommentsGet = false;
       });
   }
