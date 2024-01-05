@@ -203,7 +203,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
                     <div *ngFor="let video of videoDataArray">
                       <div class="video-item">
                         <img
-                          [src]="video.ThumbnailData"
+                          [src]="video.thumbnailUrl"
                           alt="Thumbnail"
                           width="320"
                           height="240"
