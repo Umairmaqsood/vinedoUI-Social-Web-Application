@@ -188,30 +188,29 @@ export class AuthenticationService {
   }
   //==============================Get Video Thumbnails=====================================
   getUploadedVideosThumbnails(
-    videoId: string,
-    creatorId: string
-  ): Observable<Blob> {
+    creatorId: string,
+    page: number,
+    pageSize: number
+  ) {
     const currentUser = localStorage.getItem('currentUser');
     const userToken = currentUser ? JSON.parse(currentUser).userToken : null;
 
-    // Set headers with the access token
-    const headers = new HttpHeaders().set('x-access-token', userToken || '');
-    const options = {
-      headers: headers,
-      responseType: 'blob' as 'json', // Ensure responseType is set to 'blob'
+    // Set the token in the Authorization header
+    const headers = {
+      headers: new HttpHeaders().set('x-access-token', userToken || ''),
     };
 
-    // Data payload to send to the backend
     const data = {
-      videoId: videoId, // Ensure videoId is included in the payload
-      creatorId: creatorId,
+      creatorId,
+      page,
+      pageSize,
     };
 
     // Make a POST request to the backend API
-    return this.http.post<Blob>(
+    return this.http.post<any>(
       this.backendUrl + `/video/getVideoThumbnails_Creator`,
       data,
-      options
+      headers
     );
   }
 

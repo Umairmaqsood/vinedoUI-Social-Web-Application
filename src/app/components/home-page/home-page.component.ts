@@ -190,7 +190,7 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
 
         <div class="mat-tab-color mat-tab-ripple m-top-30">
           <mat-tab-group>
-            <mat-tab>
+            <mat-tab label="Videos">
               <ng-template mat-tab-label>
                 <span class="custom-tab-label">Videos</span>
               </ng-template>
@@ -198,26 +198,25 @@ import { VgOverlayPlayModule } from '@videogular/ngx-videogular/overlay-play';
               <h2 style="text-align:center">Videos</h2>
               <div *ngIf="videoDataArray.length > 0">
                 <h2>Video Thumbnails</h2>
-                <div class="thumbnail-gallery">
-                  <div *ngFor="let video of videoDataArray">
-                    <div class="video-item">
-                      <img
-                        [src]="video.url"
-                        alt="Thumbnail"
-                        width="320"
-                        height="240"
-                      />
+                <ng-container *ngIf="!isVideoAsyncCall">
+                  <div class="thumbnail-gallery">
+                    <div *ngFor="let video of videoDataArray">
+                      <div class="video-item">
+                        <img
+                          [src]="video.ThumbnailData"
+                          alt="Thumbnail"
+                          width="320"
+                          height="240"
+                        />
+                      </div>
                     </div>
                   </div>
+                </ng-container>
+                <div *ngIf="videoDataArray.length === 0">
+                  <!-- Show a message if there are no videos -->
+                  <p>No videos available.</p>
                 </div>
               </div>
-
-              <div *ngIf="videoDataArray.length === 0">
-                <!-- Show a message if there are no videos -->
-                <p>No videos available.</p>
-              </div>
-
-              <!-- ----------------- -->
               <app-async-spinner *ngIf="isVideoAsyncCall"></app-async-spinner>
             </mat-tab>
 
@@ -902,24 +901,21 @@ export class HomePageComponent implements OnInit {
   // --------------- Get uploaded videos --------------------
 
   getUploadVideosThumbnails() {
-    this.isAsyncCall = true;
+    this.isVideoAsyncCall = true;
     this.authensService
-      .getUploadedVideosThumbnails(this.videoId, this.creatorId)
-      .subscribe({
-        next: (blob: Blob) => {
-          const reader = new FileReader();
-          reader.onloadend = () => {
-            const imageUrl = reader.result as string;
-            this.videoDataArray.push({ thumbnailUrl: imageUrl });
-          };
-          reader.readAsDataURL(blob); // Convert Blob to base64
-        },
-        error: (error: any) => {
-          this.isAsyncCall = false;
-        },
-        complete: () => {
-          this.isAsyncCall = false;
-        },
+      .getUploadedVideosThumbnails(this.creatorId, this.page, this.pageSize)
+      .subscribe((result: any) => {
+        // Convert Base64 strings to Blobs
+        result.result.forEach((videoThumbnail: any) => {
+          const blob = this.base64toBlob(
+            videoThumbnail.ThumbnailData,
+            'image/png'
+          );
+          videoThumbnail.blobData = blob;
+          videoThumbnail.objectURL = this.blobToObjectURL(blob); // Create Object URL from Blob
+          this.videoDataArray = result.result;
+          this.isVideoAsyncCall = false;
+        });
       });
   }
 
